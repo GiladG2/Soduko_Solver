@@ -9,7 +9,7 @@ namespace Soduko_Solver
     internal class Board_Formatter
     {
 
-        public int[,] Format(string baseMat)
+        static public int[,] Format(string baseMat)
         {
             int n = baseMat.Length;
             n = (int)Math.Sqrt(n);
@@ -19,7 +19,7 @@ namespace Soduko_Solver
                     mat[i, j] = baseMat[i * n + j] - '0';
             return mat;
         }
-        public void Print_Mat(int[,] mat)
+        static public void Print_Mat(int[,] mat)
         {
             for(int i = 0; i < mat.GetLength(0); i++)
             {

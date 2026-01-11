@@ -9,11 +9,13 @@ namespace Soduko_Solver
     internal class Sudoku_Solver
     {
         //func that recieves a soduko board and returns true if it is solvable and false is not
-        public bool Solve_Sudoku(int[,] mat)
+        static public bool Solve_Sudoku(int[,] mat)
         {
+
+
             return BackTrack(mat, 0, 0, mat.GetLength(0));
         }
-        bool Is_Safe(int[,] mat, int row, int col, int num)
+        private static bool Is_Safe(int[,] mat, int row, int col, int num)
         {
             for (int i = 0; i < mat.GetLength(0); i++)
                 if (mat[i, col] == num)
@@ -30,7 +32,7 @@ namespace Soduko_Solver
                         return false;
             return true;
         }
-        bool BackTrack(int[,] mat,int row,int col, int len)
+         private static bool BackTrack(int[,] mat,int row,int col, int len)
         {
             //base case: reached end of board (filled every cell)
             if (row == len - 1 && col == len)
