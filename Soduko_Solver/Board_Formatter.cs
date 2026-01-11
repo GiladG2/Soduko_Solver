@@ -1,0 +1,32 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Soduko_Solver
+{
+    internal class Board_Formatter
+    {
+
+        public int[,] Format(string baseMat)
+        {
+            int n = baseMat.Length;
+            n = (int)Math.Sqrt(n);
+            int[,] mat = new int[n, n];
+            for (int i = 0; i < n; i++)
+                for (int j = 0; j < n; j++)
+                    mat[i, j] = baseMat[i * n + j] - '0';
+            return mat;
+        }
+        public void Print_Mat(int[,] mat)
+        {
+            for(int i = 0; i < mat.GetLength(0); i++)
+            {
+                for (int j = 0; j < mat.GetLength(1); j++)
+                    Console.Write(mat[i, j] + " ");
+                Console.WriteLine();
+            }
+        }
+    }
+}

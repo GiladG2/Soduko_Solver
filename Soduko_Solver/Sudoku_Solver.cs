@@ -1,0 +1,14 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Soduko_Solver
+{
+    internal class Sudoku_Solver
+    {
+
+
+    }
+}
