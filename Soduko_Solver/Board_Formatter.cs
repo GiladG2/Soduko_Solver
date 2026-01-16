@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -8,10 +10,11 @@ namespace Soduko_Solver
 {
     internal class Board_Formatter
     {
-
         static public int[,] Format(string baseMat)
         {
             int n = baseMat.Length;
+            if(Math.Sqrt(n) % 1 !=0 || Math.Sqrt(Math.Sqrt(n)) % 1 != 0)
+                throw new Invalid_Length_Exception();
             n = (int)Math.Sqrt(n);
             int[,] mat = new int[n, n];
             for (int i = 0; i < n; i++)
