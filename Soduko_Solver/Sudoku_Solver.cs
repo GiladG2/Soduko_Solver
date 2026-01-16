@@ -8,91 +8,102 @@ using System.Threading.Tasks;
 namespace Soduko_Solver
 {
     internal class Sudoku_Solver
-    {
-        //func that recieves a soduko board and returns true if it is solvable and false is not
+    {   static List<(int, int)> empties = new List<(int, int)>();
+        static int[] rowsBitMask;
+        static int[] colsBitMask;
+        static int[] boxesBitMask;
+        static int boxSize;
+        public Sudoku_Solver(int[,] mat) { 
+            rowsBitMask = new int[mat.GetLength(0)];
+            colsBitMask = new int[mat.GetLength(0)];
+            boxesBitMask = new int[mat.GetLength(0)];
+            boxSize = (int)Math.Sqrt(mat.GetLength(0));
+        }
+        //func that recieves a soduko board and returns true if it is solvable and false if not
         static public bool Solve_Sudoku(int[,] mat)
         {
-            int[] rowsBitMask = new int[mat.GetLength(0)];
-            int[] colsBitMask = new int[mat.GetLength(0)];
-            int[] boxesBitMask = new int[mat.GetLength(0)];
-            int boxSize = (int)Math.Sqrt(mat.GetLength(0));
-            for(int rows = 0;rows<mat.GetLength(0);rows++)
-                for(int cols = 0;cols<mat.GetLength(0);cols++)
-                    if(mat[rows,cols] != 0)
-                    {
-                        rowsBitMask[rows] |= 1<< (mat[rows,cols]);
-                        colsBitMask[cols] |= 1<< (mat[rows,cols]);
-                        boxesBitMask[(rows / boxSize) * boxSize + (cols / boxSize)] |= 1<< (mat[rows,cols]);
-                    }
-            return BackTrack(mat, 0, 0, mat.GetLength(0),boxesBitMask,rowsBitMask,colsBitMask);
-        }
-        
-        private static bool Is_Safe_Bitmask(int rows,int cols,int[] rowsBitMask, int[] colBitMask, int[] boxesBitMask,int num)
-        {
-            int boxSize = (int)Math.Sqrt(boxesBitMask.Length);
-            int bitmask = 0;
-            bitmask |= 1 << (num);
-            if ((rowsBitMask[rows] & bitmask) != 0 || (colBitMask[cols] & bitmask) != 0 ||(
-                boxesBitMask[(rows / boxSize) * boxSize + (cols / boxSize)] & bitmask) != 0)
-                return false;
-            return true;
-
-        }
-         private static bool BackTrack(int[,] mat,int row,int col, int len, int[] boxesBitMask, int[] rowsBitMask, int[] colsBitMask)
-        {
-            //base case: reached end of board (filled every cell)
-            if (row == len - 1 && col == len)
-                return true;
-            if(col == len)
-            {
-                col = 0;
-                row++;
-            }
-            if (mat[row, col] != 0)
-                return BackTrack(mat, row, col + 1, len,boxesBitMask,rowsBitMask,colsBitMask);
-            int boxSize = (int)Math.Sqrt(len);
-            for(int k =1; k<=len;k++)
-            {
-                if(Is_Safe_Bitmask(row,col,rowsBitMask,colsBitMask,boxesBitMask,k))
+            empties.Clear();
+            for (int rows = 0;rows<mat.GetLength(0);rows++)
+                for(int cols = 0; cols < mat.GetLength(0); cols++)
                 {
-                    mat[row, col] = k;
-                    AddSeenDigits(k, row, col, boxSize, rowsBitMask, colsBitMask, boxesBitMask);
-                    if (BackTrack(mat,row,col+1,len, boxesBitMask, rowsBitMask, colsBitMask))
-                        return true;
-                    mat[row, col] = 0;
-                    RemoveSeenDigit(k, row, col, boxSize, rowsBitMask, colsBitMask, boxesBitMask);
+                    if(mat[rows,cols] != 0)
+                        AddSeenDigits(mat[rows, cols], rows, cols);
+                    else
+                        empties.Add((rows,cols));
+                }
+                    
+              
+            return BackTrack(mat,mat.GetLength(0));
+        }
+        private static bool BackTrack(int[,] mat,int len)
+        {
+            //base case: no empty cells (filled the entire board)
+            if (empties.Count == 0)
+                return true;
+            int minOptions = len + 1,
+                targetIndex = -1,
+                bitmask = 0;
+            for(int i = 0; i < empties.Count; i++)
+            {
+                var (r,c) = empties[i];
+                int b = (r / boxSize) * boxSize + (c / boxSize);
+                int used = boxesBitMask[b] | rowsBitMask[r] | colsBitMask[c];
+                int options = len - Count_Bits(used);
+                if (options < minOptions)
+                {
+                    minOptions = options;
+                    targetIndex = i;
+                    bitmask = (~used) & (int)(Math.Pow(2, len) - 1);
+                    if (options == 1)
+                        break;
                 }
             }
+            var (targetedR, targetedC) = empties[targetIndex];
+            empties.RemoveAt(targetIndex);
+            while(bitmask > 0)
+            {
+                int pick = bitmask & (-bitmask);
+                int num = Get_Bit_Position(pick);
+                AddSeenDigits(num, targetedR, targetedC);
+                mat[targetedR,targetedC] = num;
+                if (BackTrack(mat, len))
+                    return true;
+
+                RemoveSeenDigit(num, targetedR, targetedC);
+                mat[targetedR, targetedC] = 0;
+                bitmask -=pick;
+            }
+            empties.Insert(targetIndex, (targetedR,targetedC));
             return false;
         }
-        static void AddSeenDigits(int k, int row, int col, int boxSize, int[] rowsBitMask, int[] colsBitMask, int[] boxesBitMask)
+        static void AddSeenDigits(int k, int row, int col)
         {
-            rowsBitMask[row] |= 1 << (k);
-            colsBitMask[col] |= 1 << (k);
-            boxesBitMask[(row / boxSize) * boxSize + (col / boxSize)] |= 1 << (k);
+            rowsBitMask[row] |= 1 << (k-1);
+            colsBitMask[col] |= 1 << (k - 1);
+            boxesBitMask[(row / boxSize) * boxSize + (col / boxSize)] |= 1 << (k - 1);
         }
-        static void RemoveSeenDigit(int k,int row,int col,int boxSize, int[] rowsBitMask, int[] colsBitMask, int[] boxesBitMask)
+        static public int Get_Bit_Position(int mask)
         {
-            rowsBitMask[row] &= ~(1 << (k));
-            colsBitMask[col] &= ~(1 << (k));
-            boxesBitMask[(row / boxSize) * boxSize + (col / boxSize)] &= ~(1 << (k));
+            int pos = 0;
+            while ((mask >> pos) > 1) pos++;
+            return pos+1;
         }
-        private static bool Is_Safe(int[,] mat, int row, int col, int num)
+        static void RemoveSeenDigit(int k,int row,int col)
         {
-            for (int i = 0; i < mat.GetLength(0); i++)
-                if (mat[i, col] == num)
-                    return false;
-            for (int j = 0; j < mat.GetLength(1); j++)
-                if (mat[row, j] == num)
-                    return false;
-            int boxSize = (int)Math.Sqrt(mat.GetLength(0));
-            int boxRow = (row / boxSize) * boxSize;
-            int boxCol = (col / boxSize) * boxSize;
-            for (int sr = boxRow; sr < boxRow + boxSize; sr++)
-                for (int sc = boxCol; sc < boxCol + boxSize; sc++)
-                    if (mat[sr, sc] == num)
-                        return false;
-            return true;
+            rowsBitMask[row] &= ~(1 << ((k - 1)));
+            colsBitMask[col] &= ~(1 << ((k - 1)));
+            boxesBitMask[(row / boxSize) * boxSize + (col / boxSize)] &= ~(1 << ((k - 1)));
+        }
+        //recieves integer n and returns the number of 1 bits in it.
+        public static int Count_Bits(int n)
+        {
+            int count = 0;
+            while (n>0)
+            {
+                n &= (n - 1);
+                count++;
+            }
+            return count;
         }
     }
 }
