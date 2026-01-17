@@ -26,4 +26,30 @@ namespace Soduko_Solver
         {
         }
     }
+    internal class Unsolvable_Mat_Exception : Base_Exceptions
+    {
+        public Unsolvable_Mat_Exception() : base("The board is unsolveable")
+        {
+        }
+    }
+    internal class Duplicate_Val_In_Column: Base_Exceptions
+    {
+        public Duplicate_Val_In_Column(int val,int col) : base($"Unsolveable board, {val} appears twice at column {col}")
+        {
+        }
+    }
+    internal class Duplicate_Val_In_Row : Base_Exceptions
+    {
+        public Duplicate_Val_In_Row(int val, int row) : base($"Unsolveable board, {val} appears twice at row {row}")
+        {
+
+        }
+    }
+    internal class Duplicate_Val_In_Box : Base_Exceptions
+    {
+        public Duplicate_Val_In_Box(int val, int box) : base($"Unsolveable board, {val} appears twice at box {box}")
+        {
+
+        }
+    }
 }

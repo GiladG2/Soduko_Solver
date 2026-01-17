@@ -12,6 +12,7 @@ namespace Soduko_Solver
     {
         static public int[,] Format(string baseMat)
         {
+            
             int n = baseMat.Length;
             if (Math.Sqrt(n) % 1 != 0 || Math.Sqrt(Math.Sqrt(n)) % 1 != 0)
                 throw new Invalid_Length_Exception();

@@ -79,9 +79,16 @@ namespace Soduko_Solver
         }
         static void AddSeenDigits(int k, int row, int col)
         {
+            if (Is_Already_Placed(rowsBitMask[row], k))
+                throw new Duplicate_Val_In_Row(k,row+1);
+            if(Is_Already_Placed(colsBitMask[col], k))
+                throw new Duplicate_Val_In_Column(k,col+1);
+            int b = (row / boxSize) * boxSize + (col / boxSize);
+            if (Is_Already_Placed(boxesBitMask[b], k))
+                throw new Duplicate_Val_In_Box(k, b+1);
             rowsBitMask[row] |= 1 << (k-1);
             colsBitMask[col] |= 1 << (k - 1);
-            boxesBitMask[(row / boxSize) * boxSize + (col / boxSize)] |= 1 << (k - 1);
+            boxesBitMask[b] |= 1 << (k - 1);
         }
         static public int Get_Bit_Position(int mask)
         {
@@ -105,6 +112,10 @@ namespace Soduko_Solver
                 count++;
             }
             return count;
+        }
+        public static bool Is_Already_Placed(int bit, int n)
+        {
+            return (bit & (1 << (n - 1))) != 0;
         }
     }
 }
