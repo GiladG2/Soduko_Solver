@@ -7,14 +7,14 @@ using System.Threading.Tasks;
 
 namespace Soduko_Solver
 {
-    internal class Base_Exceptions : Exception
+    public class Base_Exceptions : Exception
     {
         public Base_Exceptions(string msg)
         {
             Console.WriteLine($"Error : {msg}");
         }
     }
-    internal class Invalid_Length_Exception: Base_Exceptions
+    public class Invalid_Length_Exception: Base_Exceptions
     {
         public Invalid_Length_Exception() : base("Invalid soduko board len")
         {
@@ -51,5 +51,9 @@ namespace Soduko_Solver
         {
 
         }
+    }
+    internal class Empty_Board_Exception : Base_Exceptions
+    {
+        public Empty_Board_Exception() : base("Attempt to solve an empty board") { }
     }
 }

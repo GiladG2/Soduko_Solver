@@ -20,7 +20,7 @@ namespace Soduko_Solver
             boxSize = (int)Math.Sqrt(mat.GetLength(0));
         }
         //func that recieves a soduko board and returns true if it is solvable and false if not
-        static public bool Solve_Sudoku(int[,] mat)
+        static public string Solve_Sudoku(int[,] mat)
         {
             empties.Clear();
             for (int rows = 0;rows<mat.GetLength(0);rows++)
@@ -33,8 +33,13 @@ namespace Soduko_Solver
                     else
                         empties.Add((rows,cols));
                 }
-                    
-            return BackTrack(mat,mat.GetLength(0));
+
+            string matString = "";
+            BackTrack(mat, mat.GetLength(0));
+            for (int i = 0; i < mat.GetLength(0); i++)
+                for (int j = 0; j < mat.GetLength(0); j++)
+                    matString += (char)('0' + mat[i, j]);
+            return matString;
         }
         private static bool BackTrack(int[,] mat,int len)
         {
@@ -55,7 +60,7 @@ namespace Soduko_Solver
                     minOptions = options;
                     targetIndex = i;
                     bitmask = (~used) & (int)(Math.Pow(2, len) - 1);
-                    if (options == 1)
+                    if (options == 1) //found the min options
                         break;
                 }
             }
