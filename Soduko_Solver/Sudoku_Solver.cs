@@ -26,13 +26,14 @@ namespace Soduko_Solver
             for (int rows = 0;rows<mat.GetLength(0);rows++)
                 for(int cols = 0; cols < mat.GetLength(0); cols++)
                 {
-                    if(mat[rows,cols] != 0)
+                    if (mat[rows,cols] + '0' < '0' || mat[rows,cols] > mat.GetLength(0))
+                        throw new Invalid_Character_Exception(mat[rows,cols],rows+1,cols+1);
+                    if (mat[rows,cols] != 0)
                         AddSeenDigits(mat[rows, cols], rows, cols);
                     else
                         empties.Add((rows,cols));
                 }
                     
-              
             return BackTrack(mat,mat.GetLength(0));
         }
         private static bool BackTrack(int[,] mat,int len)
