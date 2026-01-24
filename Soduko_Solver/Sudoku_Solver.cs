@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -13,16 +14,23 @@ namespace Soduko_Solver
         static int[] colsBitMask;
         static int[] boxesBitMask;
         static int boxSize;
+        static int minCluesDensity;
+        static Random rnd = new Random();
+
         public Sudoku_Solver(int[,] mat) { 
             rowsBitMask = new int[mat.GetLength(0)];
             colsBitMask = new int[mat.GetLength(0)];
             boxesBitMask = new int[mat.GetLength(0)];
             boxSize = (int)Math.Sqrt(mat.GetLength(0));
+            minCluesDensity = (int)(0.95 * mat.GetLength(0) * mat.GetLength(0));
         }
+
         //func that recieves a soduko board and returns true if it is solvable and false if not
         static public string Solve_Sudoku(int[,] mat)
         {
             empties.Clear();
+            int firstEmptyRow = -1;
+            int firstEmptyCol = -1;
             for (int rows = 0;rows<mat.GetLength(0);rows++)
                 for(int cols = 0; cols < mat.GetLength(0); cols++)
                 {
@@ -31,15 +39,72 @@ namespace Soduko_Solver
                     if (mat[rows,cols] != 0)
                         AddSeenDigits(mat[rows, cols], rows, cols);
                     else
+                    {                       
                         empties.Add((rows,cols));
+                        if(firstEmptyRow == -1)
+                        {
+                            firstEmptyRow = rows;
+                            firstEmptyCol = cols;
+                        }
+                    }
                 }
-
+            Console.WriteLine($"{minCluesDensity}, {empties.Count} => target = {empties.Count-minCluesDensity}");
+            if(empties.Count > minCluesDensity)
+                SimpleBacktracking(mat,firstEmptyRow,firstEmptyCol,empties.Count-minCluesDensity);
+            Console.WriteLine("After simple backtracking");
+            Board_Formatter.Print_Mat(mat);
+            Console.WriteLine();
+            empties = new List<(int, int)>();
+            for (int rows = 0; rows < mat.GetLength(0); rows++)
+                for (int cols = 0; cols < mat.GetLength(0); cols++)
+                {
+                    if (mat[rows, cols] + '0' < '0' || mat[rows, cols] > mat.GetLength(0))
+                        throw new Invalid_Character_Exception(mat[rows, cols], rows + 1, cols + 1);
+                    if (mat[rows,cols] ==0)
+                    {
+                        empties.Add((rows, cols));
+                        if (firstEmptyRow == -1)
+                        {
+                            firstEmptyRow = rows;
+                            firstEmptyCol = cols;
+                        }
+                    }
+                }
             string matString = "";
             BackTrack(mat, mat.GetLength(0));
             for (int i = 0; i < mat.GetLength(0); i++)
                 for (int j = 0; j < mat.GetLength(0); j++)
                     matString += (char)('0' + mat[i, j]);
-            return matString;
+            return "";
+        }
+        private static bool SimpleBacktracking(int[,] mat,int rows,int cols,int target)
+        {
+            if (target == 0)
+                return true;
+            if (cols == mat.GetLength(0))
+            {
+                cols = 0;
+            }
+            int b = (rows / boxSize) * boxSize + (cols / boxSize);
+            if (mat[rows,cols] == 0)
+                for(int i=1;i<mat.GetLength(0)+1;i++)
+                {
+                    if (!Is_Already_Placed(rowsBitMask[rows],i)
+                        && !Is_Already_Placed(colsBitMask[cols],i)
+                        && !Is_Already_Placed(boxesBitMask[b], i))
+                    {
+                        AddSeenDigits(i, rows, cols);
+                        mat[rows, cols] = i;
+                        if (SimpleBacktracking(mat,rnd.Next(0,mat.GetLength(0)-1), cols + 1,target-1))
+                            return true;
+                        RemoveSeenDigit(i, rows, cols);
+                        target++;
+                        mat[rows, cols] = 0;
+                    }
+                }
+            else
+                SimpleBacktracking(mat, rnd.Next(0,mat.GetLength(0)-1), cols+1, target);
+                return false;
         }
         private static bool BackTrack(int[,] mat,int len)
         {

@@ -64,7 +64,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Sudoku_Solver.cs" />
     <Compile Include="Tester.cs" />
-    <Compile Include="UTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
