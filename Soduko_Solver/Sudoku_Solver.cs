@@ -19,9 +19,7 @@ namespace Soduko_Solver
         static int minCluesDensity;
         static Random rnd = new Random();
         static int[,] weight;
-        static int[] boxWeight;
-        static int[] rowWeight;
-        static int[] colWeight;
+
         public Sudoku_Solver(int[,] mat)
         {
             rowsBitMask = new int[mat.GetLength(0)];
@@ -29,18 +27,27 @@ namespace Soduko_Solver
             boxesBitMask = new int[mat.GetLength(0)];
             boxSize = (int)Math.Sqrt(mat.GetLength(0));
             minCluesDensity = (int)(0.94 * mat.GetLength(0) * mat.GetLength(0));
-            rowWeight = new int[mat.GetLength(0)];
-            colWeight = new int[mat.GetLength(0)];
-            boxWeight = new int[mat.GetLength(0)];
-            weight = new int[mat.GetLength(0),mat.GetLength(0)];
+
+            weight = new int[mat.GetLength(0),mat.GetLength(0)]; // weight[index,value]
+        }
+        static void ResetEmpties(int[,] mat)
+        {
+            empties = new List<(int, int)>();
+            for (int rows = 0; rows < mat.GetLength(0); rows++)
+                for (int cols = 0; cols < mat.GetLength(0); cols++)
+                {
+                    if (mat[rows, cols] + '0' < '0' || mat[rows, cols] > mat.GetLength(0))
+                        throw new Invalid_Character_Exception(mat[rows, cols], rows + 1, cols + 1);
+                    if (mat[rows, cols] == 0)
+                        empties.Add((rows, cols));
+                }
         }
         
         //func that recieves a soduko board and returns true if it is solvable and false if not
         static public string Solve_Sudoku(int[,] mat)
         {
             empties.Clear();
-            int firstEmptyRow = -1;
-            int firstEmptyCol = -1;
+
             for (int rows = 0; rows < mat.GetLength(0); rows++)
                 for (int cols = 0; cols < mat.GetLength(0); cols++)
                 {
@@ -49,49 +56,27 @@ namespace Soduko_Solver
                     if (mat[rows, cols] != 0)
                         AddSeenDigits(mat[rows, cols], rows, cols);
                     else
-                    {
                         empties.Add((rows, cols));
-                        if (firstEmptyRow == -1)
-                        {
-                            firstEmptyRow = rows;
-                            firstEmptyCol = cols;
-                        }
-                    }
                 }
             if (empties.Count > minCluesDensity)
             {
-                //int[] options = GetMaxOptions(mat.GetLength(0));
-                Console.WriteLine($"{minCluesDensity}, {empties.Count} => target = {empties.Count - minCluesDensity}");
-                SimpleBacktracking(mat, empties.Count - minCluesDensity, 0);
+                SimpleBacktracking(mat, empties.Count - minCluesDensity);
                 Console.WriteLine("After simple backtracking");
                 Board_Formatter.Print_Mat(mat);
                 Console.WriteLine();
             }
-
-            empties = new List<(int, int)>();
-            for (int rows = 0; rows < mat.GetLength(0); rows++)
-                for (int cols = 0; cols < mat.GetLength(0); cols++)
-                {
-                    if (mat[rows, cols] + '0' < '0' || mat[rows, cols] > mat.GetLength(0))
-                        throw new Invalid_Character_Exception(mat[rows, cols], rows + 1, cols + 1);
-                    if (mat[rows, cols] == 0)
-                    {
-                        empties.Add((rows, cols));
-                        if (firstEmptyRow == -1)
-                        {
-                            firstEmptyRow = rows;
-                            firstEmptyCol = cols;
-                        }
-                    }
-                }
+            ResetEmpties(mat);
             string matString = "";
-            BackTrack(mat, mat.GetLength(0));
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+            BackTrack(mat, mat.GetLength(0),sw);
+            sw.Stop();
             for (int i = 0; i < mat.GetLength(0); i++)
                 for (int j = 0; j < mat.GetLength(0); j++)
                     matString += (char)('0' + mat[i, j]);
             return matString;
         }
-        public static bool SimpleBacktracking(int[,] mat, int target, int j)
+        public static bool SimpleBacktracking(int[,] mat, int target, int j=0)
         {
             if (target == 0)
                 return true;
@@ -117,12 +102,33 @@ namespace Soduko_Solver
                 SimpleBacktracking(mat, target, j + 1);
             return false;
         }
-        private static int SumWeight(int r,int c)
+        private static int CalculateOptions(int[,] mat,int len, int r, int c)
         {
-            return rowWeight[r] + colWeight[c] + boxWeight[(r/boxSize)*boxSize+(c/boxSize)];
+            if (mat[r, c] != 0)
+                return -1;
+            int b = (r / boxSize) * boxSize + (c / boxSize);
+            int used = boxesBitMask[b] | rowsBitMask[r] |colsBitMask[c];
+            return len - Count_Bits(used);
         }
-        private static bool BackTrack(int[,] mat, int len)
+        private static bool ForwardChecking(int[,] mat,int len,int r,int c)
         {
+            for(int i =0;i<len; i++)
+                if(r!=i && CalculateOptions(mat,len, i,c) == 0)
+                    return false;
+            for(int i =0;i<len;i++)
+                if(i!=c && CalculateOptions(mat,len, r,i) == 0)
+                    return false;
+            int boxS = (r / boxSize) * boxSize;
+            int boxF = (c / boxSize) * boxSize;
+            for (int i = 0; i < boxS + boxSize; i++)
+                for (int j = 0; j < boxF + boxSize; j++)
+                    if (i != r && j != c && CalculateOptions(mat,len, i, j) == 0)
+                        return false;
+            return true;
+        }
+        private static bool BackTrack(int[,] mat, int len,Stopwatch sw)
+        {
+            
             //base case: no empty cells (filled the entire board)
             if (empties.Count == 0)
                 return true;
@@ -156,12 +162,12 @@ namespace Soduko_Solver
                 int num = Get_Bit_Position(pick);
                 AddSeenDigits(num, targetedR, targetedC);
                 mat[targetedR, targetedC] = num;
-                if (BackTrack(mat, len))
-                    return true;
+                if (ForwardChecking(mat, len,targetedR, targetedC))
+                     if (BackTrack(mat, len, sw))
+                        return true;
                 int maxBit = (1 << len) - 1;
                 int targetB = (targetedR / boxSize) * boxSize + (targetedC / boxSize);
-                
-                weight[targetedR, targetedC]++;
+                weight[targetedR , targetedC]++;
                 RemoveSeenDigit(num, targetedR, targetedC);
                 mat[targetedR, targetedC] = 0;
                 bitmask -= pick;

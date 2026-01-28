@@ -71,16 +71,27 @@ namespace Soduko_Solver
             sw.Stop();
             Console.WriteLine(sw.Elapsed);
             sw.Start();
+            Stopwatch sw2 = new Stopwatch();
+            string hardestMat = "";
+            double maxTime = 0;
+            string testMat = "";
             for (int i = 0; i < 100; i++)
             {
-                Console.WriteLine($"Sudoku num. {i}");
-                string testMat = "1E45326789;=>?F@AB<CD:GHI?=DFGEHI14:@ABC7352896;<>96BCH;<>A:13457DEFGI82=?@278:;@CDFGE9<HI64=>?13AB5<>@AI5=?B3268DG1H9:;C4EF7F3=>@42<HICD6E1A58B7?G9:;B:7I6>AGE@4F5;?C=2D9H1<384?A2<C185FHI3@9G6;E:>BD7=E5;H8BD:9=<>7G24?1F3@I6CAG19DC673;?A8:=BI@>H<2E45F:9CG=34A62FBI7;H>D85<@?E1D<H6495C=1@?E83BIA7G:>F;2;@?B5:>ED7GA24HF9<C1=83I6AI237<@FG86:91>=;E?45HBDC8F>1E?BHI;D<=C52:@36A97G4=H37F8952<BE16@:C?ID4;>AGI2G9A=;63>?7C:48FH5EB<@1D5DE4>F?@:A3G;<=9176BIC82H68<?BGE17CI5HAD;24@>3F:=9C;1@:HIB4D92F>8<G3A=E756?H4I<?A39>B=;@2E57G1F6DC8:@A6=218;?E74DF:3<C9HG5I>B3GFE1D:=@H5CB96>8I;A7?24<7C58DIF2<6>HG3A?B:4@;=19E>B:;97G4C581?I<ED6=2FAH@3";
+                Console.WriteLine($"Sudoku num. {i+1}");
+                 testMat = "1E45326789;=>?F@AB<CD:GHI?=DFGEHI14:@ABC7352896;<>96BCH;<>A:13457DEFGI82=?@278:;@CDFGE9<HI64=>?13AB5<>@AI5=?B3268DG1H9:;C4EF7F3=>@42<HICD6E1A58B7?G9:;B:7I6>AGE@4F5;?C=2D9H1<384?A2<C185FHI3@9G6;E:>BD7=E5;H8BD:9=<>7G24?1F3@I6CAG19DC673;?A8:=BI@>H<2E45F:9CG=34A62FBI7;H>D85<@?E1D<H6495C=1@?E83BIA7G:>F;2;@?B5:>ED7GA24HF9<C1=83I6AI237<@FG86:91>=;E?45HBDC8F>1E?BHI;D<=C52:@36A97G4=H37F8952<BE16@:C?ID4;>AGI2G9A=;63>?7C:48FH5EB<@1D5DE4>F?@:A3G;<=9176BIC82H68<?BGE17CI5HAD;24@>3F:=9C;1@:HIB4D92F>8<G3A=E756?H4I<?A39>B=;@2E57G1F6DC8:@A6=218;?E74DF:3<C9HG5I>B3GFE1D:=@H5CB96>8I;A7?24<7C58DIF2<6>HG3A?B:4@;=19E>B:;97G4C581?I<ED6=2FAH@3";
                 int[,] testMatFormatted = Board_Formatter.Format(testMat);
                 Sudoku_Solver s2 = new Sudoku_Solver(testMatFormatted);
                 testMat = Tester.GenerateSudokuBoard(testMatFormatted, (int)(testMatFormatted.GetLength(0) * testMatFormatted.GetLength(0) * 0.99));
-                
+                sw2.Start();
                 Test(testMat);
+                sw2.Stop();
+                if(sw2.ElapsedMilliseconds > maxTime)
+                {
+                    maxTime = sw2.ElapsedMilliseconds;
+                    hardestMat = testMat;
+                }
             }
+            Console.WriteLine(hardestMat);
             sw.Stop();
             Console.WriteLine(sw.Elapsed);
             Console.WriteLine();
