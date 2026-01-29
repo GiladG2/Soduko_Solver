@@ -25,11 +25,12 @@ namespace Soduko_Solver
                     mat[i, j] = baseMat[i * n + j] - '0';
             return mat;
         }
+
         static public void Print_Mat(int[,] mat)
         {
             for(int i = 0; i < mat.GetLength(0); i++)
             {
-                for (int j = 0; j < mat.GetLength(1); j++)
+                for(int j =0;j<mat.GetLength(0);j++)
                     Console.Write(mat[i, j] + " ");
                 Console.WriteLine();
             }

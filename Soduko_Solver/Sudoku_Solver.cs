@@ -11,42 +11,29 @@ namespace Soduko_Solver
 {
     internal class Sudoku_Solver
     {
-        static List<(int, int)> empties = new List<(int, int)>();
-        static int[] rowsBitMask;
-        static int[] colsBitMask;
-        static int[] boxesBitMask;
-        static int boxSize;
-        static int minCluesDensity;
-        static Random rnd = new Random();
-        static int[,] weight;
+        static SudokuState state;
 
         public Sudoku_Solver(int[,] mat)
         {
-            rowsBitMask = new int[mat.GetLength(0)];
-            colsBitMask = new int[mat.GetLength(0)];
-            boxesBitMask = new int[mat.GetLength(0)];
-            boxSize = (int)Math.Sqrt(mat.GetLength(0));
-            minCluesDensity = (int)(0.94 * mat.GetLength(0) * mat.GetLength(0));
-
-            weight = new int[mat.GetLength(0),mat.GetLength(0)]; // weight[index,value]
+            state = new SudokuState(mat);
         }
         static void ResetEmpties(int[,] mat)
         {
-            empties = new List<(int, int)>();
+            state.Empties= new List<(int, int)>();
             for (int rows = 0; rows < mat.GetLength(0); rows++)
                 for (int cols = 0; cols < mat.GetLength(0); cols++)
                 {
                     if (mat[rows, cols] + '0' < '0' || mat[rows, cols] > mat.GetLength(0))
                         throw new Invalid_Character_Exception(mat[rows, cols], rows + 1, cols + 1);
                     if (mat[rows, cols] == 0)
-                        empties.Add((rows, cols));
+                        state.Empties.Add((rows, cols));
                 }
         }
-        
+
         //func that recieves a soduko board and returns true if it is solvable and false if not
         static public string Solve_Sudoku(int[,] mat)
         {
-            empties.Clear();
+            state.Empties.Clear();
 
             for (int rows = 0; rows < mat.GetLength(0); rows++)
                 for (int cols = 0; cols < mat.GetLength(0); cols++)
@@ -56,11 +43,11 @@ namespace Soduko_Solver
                     if (mat[rows, cols] != 0)
                         AddSeenDigits(mat[rows, cols], rows, cols);
                     else
-                        empties.Add((rows, cols));
+                        state.Empties.Add((rows, cols));
                 }
-            if (empties.Count > minCluesDensity)
+            if (state.Empties.Count > state.MinClueDensity)
             {
-                SimpleBacktracking(mat, empties.Count - minCluesDensity);
+                SimpleBacktracking(mat, state.Empties.Count - state.MinClueDensity);
                 Console.WriteLine("After simple backtracking");
                 Board_Formatter.Print_Mat(mat);
                 Console.WriteLine();
@@ -69,25 +56,25 @@ namespace Soduko_Solver
             string matString = "";
             Stopwatch sw = new Stopwatch();
             sw.Start();
-            BackTrack(mat, mat.GetLength(0),sw);
+            BackTrack(mat, mat.GetLength(0));
             sw.Stop();
             for (int i = 0; i < mat.GetLength(0); i++)
                 for (int j = 0; j < mat.GetLength(0); j++)
                     matString += (char)('0' + mat[i, j]);
             return matString;
         }
-        public static bool SimpleBacktracking(int[,] mat, int target, int j=0)
+        public static bool SimpleBacktracking(int[,] mat, int target, int j = 0)
         {
             if (target == 0)
                 return true;
-            var (rows, cols) = empties[j];
-            int b = (rows / boxSize) * boxSize + (cols / boxSize);
+            var (rows, cols) = state.Empties[j];
+            int b = (rows / state.BoxSize) * state.BoxSize + (cols / state.BoxSize);
             if (mat[rows, cols] == 0)
                 for (int i = 1; i < mat.GetLength(0) + 1; i++)
                 {
-                    if (!Is_Already_Placed(rowsBitMask[rows], i)
-                        && !Is_Already_Placed(colsBitMask[cols], i)
-                        && !Is_Already_Placed(boxesBitMask[b], i))
+                    if (!Is_Already_Placed(state.RowsBitMask[rows], i)
+                        && !Is_Already_Placed(state.ColsBitMask[cols], i)
+                        && !Is_Already_Placed(state.BoxesBitMask[b], i))
                     {
                         AddSeenDigits(i, rows, cols);
                         mat[rows, cols] = i;
@@ -102,91 +89,142 @@ namespace Soduko_Solver
                 SimpleBacktracking(mat, target, j + 1);
             return false;
         }
-        private static int CalculateOptions(int[,] mat,int len, int r, int c)
+        private static int CalculateOptions(int[,] mat, int len, int r, int c)
         {
             if (mat[r, c] != 0)
                 return -1;
-            int b = (r / boxSize) * boxSize + (c / boxSize);
-            int used = boxesBitMask[b] | rowsBitMask[r] |colsBitMask[c];
+            int b = (r / state.BoxSize) * state.BoxSize + (c / state.BoxSize);
+            int used = state.BoxesBitMask[b] | state.RowsBitMask[r] | state.ColsBitMask[c];
             return len - Count_Bits(used);
         }
-        private static bool ForwardChecking(int[,] mat,int len,int r,int c)
+        private static bool ForwardChecking(int[,] mat, int len, int r, int c)
         {
-            for(int i =0;i<len; i++)
-                if(r!=i && CalculateOptions(mat,len, i,c) == 0)
+            for (int i = 0; i < len; i++)
+                if (r != i && CalculateOptions(mat, len, i, c) == 0)
                     return false;
-            for(int i =0;i<len;i++)
-                if(i!=c && CalculateOptions(mat,len, r,i) == 0)
+            for (int i = 0; i < len; i++)
+                if (i != c && CalculateOptions(mat, len, r, i) == 0)
                     return false;
-            int boxS = (r / boxSize) * boxSize;
-            int boxF = (c / boxSize) * boxSize;
-            for (int i = 0; i < boxS + boxSize; i++)
-                for (int j = 0; j < boxF + boxSize; j++)
-                    if (i != r && j != c && CalculateOptions(mat,len, i, j) == 0)
+            int boxS = (r / state.BoxSize) * state.BoxSize;
+            int boxF = (c / state.BoxSize) * state.BoxSize;
+            for (int i = 0; i < boxS + state.BoxSize; i++)
+                for (int j = 0; j < boxF + state.BoxSize; j++)
+                    if (i != r && j != c && CalculateOptions(mat, len, i, j) == 0)
                         return false;
             return true;
         }
-        private static bool BackTrack(int[,] mat, int len,Stopwatch sw)
+        private static (int, int) NakedSingles(int[,] mat, int len, int r, int c)
         {
-            
-            //base case: no empty cells (filled the entire board)
-            if (empties.Count == 0)
+            for (int i = 0; i < len; i++)
+                if (mat[r, i] == 0 && r != i && CalculateOptions(mat, len, i, c) == 1)
+                    return (i, c);
+            for (int i = 0; i < len; i++)
+                if (mat[i, c] == 0 && i != c && CalculateOptions(mat, len, r, i) == 1)
+                    return (r, i);
+            int boxS = (r / state.BoxSize) * state.BoxSize;
+            int boxF = (c / state.BoxSize) * state.BoxSize;
+            for (int i = 0; i < boxS + state.BoxSize; i++)
+                for (int j = 0; j < boxF + state.BoxSize; j++)
+                    if (mat[i, j] == 0 && i != r && j != c && CalculateOptions(mat, len, i, j) == 1)
+                        return (i, j);
+            return (-1, -1);
+        }
+        private static bool IsNakedSingle(int[,] mat, int len, int r, int c)
+        {
+            int b = (r / state.BoxSize) * state.BoxSize + (c / state.BoxSize);
+            int used = state.BoxesBitMask[b] | state.RowsBitMask[r] | state.ColsBitMask[c];
+            int options = len - Count_Bits(used);
+            return options == 1;
+        }
+        private static bool ChainNakedSingles(int[,] mat, int len)
+        {
+            var (r, c) = (0, 0);
+            bool propagation = true;
+            do
+            {
+                propagation = false;
+                for (int i = state.Empties.Count-1; i >=0; i--)
+                {
+                    (r, c) = state.Empties[i];
+                    int b = (r / state.BoxSize) * state.BoxSize + (c / state.BoxSize);
+                    int used = state.BoxesBitMask[b] | state.RowsBitMask[r] | state.ColsBitMask[c];
+                    int options = len - Count_Bits(used);
+                    if (options == 0)
+                        return false;
+                    if(options == 1)
+                    {
+                        propagation = true;
+                        int bitmask = (~used) & ((1 << len) - 1);
+                        int pick = bitmask & (-bitmask);
+                        int num = Get_Bit_Position(pick);
+                        AddSeenDigits(num, r, c);
+                        mat[r, c] = num;
+                        state.Empties.Remove((r, c));
+                    }
+                }
+            }
+            while (propagation);
+            return true;
+        }
+        private static bool BackTrack(int[,] mat, int len)
+        {
+            //if(!ChainNakedSingles(mat, len))
+            //   return false;
+            //base case: no empty cells (filled the entire board)\
+            if (state.Empties.Count == 0)
                 return true;
             int minOptions = len + 1,
                 targetIndex = -1,
                 bitmask = 0;
-            for (int i = 0; i < empties.Count; i++)
+            for (int i = 0; i < state.Empties.Count; i++)
             {
-                var (r, c) = empties[i];
-                int b = (r / boxSize) * boxSize + (c / boxSize);
-                int used = boxesBitMask[b] | rowsBitMask[r] | colsBitMask[c];
+                var (r, c) = state.Empties[i];
+                int b = (r / state.BoxSize) * state.BoxSize + (c / state.BoxSize);
+                int used = state.BoxesBitMask[b] | state.RowsBitMask[r] | state.ColsBitMask[c];
                 int options = len - Count_Bits(used);
                 var (minR, minC) = (0, 0);
                 if (targetIndex != -1)
-                    (minR, minC) = empties[targetIndex];
+                    (minR, minC) = state.Empties[targetIndex];
                 if (options < minOptions ||
-                    (targetIndex != -1 && (options == minOptions && weight[r,c] > weight[minR,minC])))// weighted check
+                    (targetIndex != -1 && (options == minOptions && state.Weight[r, c] > state.Weight[minR, minC])))// weighted check
                 {
                     minOptions = options;
                     targetIndex = i;
                     bitmask = (~used) & ((1 << len) - 1);
-                    if (options == 1) //found the min options
-                        break;
                 }
             }
-            var (targetedR, targetedC) = empties[targetIndex];
-            empties.RemoveAt(targetIndex);
+            var (targetedR, targetedC) = state.Empties[targetIndex];
+            state.Empties.RemoveAt(targetIndex);
             while (bitmask > 0)
             {
                 int pick = bitmask & (-bitmask);
                 int num = Get_Bit_Position(pick);
                 AddSeenDigits(num, targetedR, targetedC);
                 mat[targetedR, targetedC] = num;
-                if (ForwardChecking(mat, len,targetedR, targetedC))
-                     if (BackTrack(mat, len, sw))
-                        return true;
-                int maxBit = (1 << len) - 1;
-                int targetB = (targetedR / boxSize) * boxSize + (targetedC / boxSize);
-                weight[targetedR , targetedC]++;
+                //if (ForwardChecking(mat, len,targetedR, targetedC))
+                if (BackTrack(mat, len))
+                    return true;
+                int targetB = (targetedR / state.BoxSize) * state.BoxSize + (targetedC / state.BoxSize);
+                state.Weight[targetedR, targetedC]++;
                 RemoveSeenDigit(num, targetedR, targetedC);
                 mat[targetedR, targetedC] = 0;
                 bitmask -= pick;
             }
-            empties.Insert(targetIndex, (targetedR, targetedC));
+            state.Empties.Insert(targetIndex, (targetedR, targetedC));
             return false;
         }
         static void AddSeenDigits(int k, int row, int col)
         {
-            if (Is_Already_Placed(rowsBitMask[row], k))
+            if (Is_Already_Placed(state.RowsBitMask[row], k))
                 throw new Duplicate_Val_In_Row(k, row + 1);
-            if (Is_Already_Placed(colsBitMask[col], k))
+            if (Is_Already_Placed(state.ColsBitMask[col], k))
                 throw new Duplicate_Val_In_Column(k, col + 1);
-            int b = (row / boxSize) * boxSize + (col / boxSize);
-            if (Is_Already_Placed(boxesBitMask[b], k))
+            int b = (row / state.BoxSize) * state.BoxSize + (col / state.BoxSize);
+            if (Is_Already_Placed(state.BoxesBitMask[b], k))
                 throw new Duplicate_Val_In_Box(k, b + 1);
-            rowsBitMask[row] |= 1 << (k - 1);
-            colsBitMask[col] |= 1 << (k - 1);
-            boxesBitMask[b] |= 1 << (k - 1);
+            state.RowsBitMask[row] |= 1 << (k - 1);
+            state.ColsBitMask[col] |= 1 << (k - 1);
+            state.BoxesBitMask[b] |= 1 << (k - 1);
         }
         static public int Get_Bit_Position(int mask)
         {
@@ -196,9 +234,9 @@ namespace Soduko_Solver
         }
         static void RemoveSeenDigit(int k, int row, int col)
         {
-            rowsBitMask[row] &= ~(1 << ((k - 1)));
-            colsBitMask[col] &= ~(1 << ((k - 1)));
-            boxesBitMask[(row / boxSize) * boxSize + (col / boxSize)] &= ~(1 << ((k - 1)));
+            state.RowsBitMask[row] &= ~(1 << ((k - 1)));
+            state.ColsBitMask[col] &= ~(1 << ((k - 1)));
+            state.BoxesBitMask[(row / state.BoxSize) * state.BoxSize + (col / state.BoxSize)] &= ~(1 << ((k - 1)));
         }
         //recieves integer n and returns the number of 1 bits in it.
         public static int Count_Bits(int n)
