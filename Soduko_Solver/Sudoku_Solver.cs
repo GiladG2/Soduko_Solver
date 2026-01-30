@@ -149,7 +149,7 @@ namespace Soduko_Solver
         }
         private static bool IsNakedSinglesEfficient()
         {
-            return state.Len > 30 // If the mat is large enough
+            return state.Len > 9 // If the mat is large enough
                 && (double)state.Empties.Count / (state.Len * state.Len) < 0.3 // and 70% of the mat is filled 
                 &&!ChainNakedSingles(state.Stack); //chain naked singles
         }
@@ -158,8 +158,8 @@ namespace Soduko_Solver
             int before_Naked_Singles = state.Stack.Len;
             if (IsNakedSinglesEfficient())
             {
-                RollBack(state.Stack.Len - before_Naked_Singles, 1);
-                return false;
+               RollBack(state.Stack.Len - before_Naked_Singles, 1);
+               return false;
             }
             //base case: no empty cells (filled the entire board)
 
@@ -202,6 +202,8 @@ namespace Soduko_Solver
                     return true;
                 state.Weight[targetedR, targetedC]++;
                 int diff = state.Stack.Len - currentState;
+                RemoveSeenDigit(num, targetedR, targetedC);
+                state.Mat[targetedR, targetedC] = 0;
                 RollBack(diff,0); // Rollback the changes of a failed recursion (guess) branch
                 bitmask -= pick;
             }
