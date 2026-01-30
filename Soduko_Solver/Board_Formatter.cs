@@ -28,12 +28,31 @@ namespace Soduko_Solver
 
         static public void Print_Mat(int[,] mat)
         {
+            int boxSize = (int)Math.Sqrt(mat.GetLength(0));
             for (int i = 0; i < mat.GetLength(0); i++)
             {
+                if (i % boxSize == 0)
+                {
+                    for (int k = 0; k < (boxSize + 1) + mat.GetLength(0) * 3; k++)
+                        Console.Write("-");
+                    Console.WriteLine();
+                }
                 for (int j = 0; j < mat.GetLength(0); j++)
-                    Console.Write(mat[i, j] + " ");
-                Console.WriteLine();
+                {
+                    if (j % boxSize == 0)
+                        Console.Write("|");
+                    Console.Write(mat[i, j]);
+                    if (mat[i, j] > 9)
+                        Console.Write(" ");
+                    else
+                        Console.Write("  ");
+
+                }
+                Console.WriteLine("|");
             }
+            for (int k = 0; k < (boxSize + 1) + mat.GetLength(0) * 3; k++)
+                Console.Write("-");
+            Console.WriteLine();
         }
     }
 }

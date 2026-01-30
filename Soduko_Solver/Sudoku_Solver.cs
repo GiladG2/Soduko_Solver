@@ -44,16 +44,19 @@ namespace Soduko_Solver
                     else
                         state.Empties.Add((rows, cols));
                 }
+            //Fill with simple brute force in order to have enough constraints for the MRV
             if (state.Empties.Count > state.MinClueDensity)
-                SimpleBacktracking(state.Empties.Count - state.MinClueDensity);
+                SimpleBacktracking(state.Empties.Count - state.MinClueDensity); 
             ResetEmpties(state.Mat);
             string matString = "";
+            //Continue solving after using simpler brute force
             BackTrack();
             for (int i = 0; i < state.Mat.GetLength(0); i++)
                 for (int j = 0; j < state.Mat.GetLength(0); j++)
                     matString += (char)('0' + state.Mat[i, j]);
             return matString;
         }
+        //Brute force fill if there are not enough constraints to start using MRV
         public static bool SimpleBacktracking(int target, int j = 0)
         {
             if (target == 0)
@@ -80,6 +83,8 @@ namespace Soduko_Solver
                 SimpleBacktracking(target, j + 1);
             return false;
         }
+        //Commented due to making my solver slower
+        /*
         private static int CalculateOptions(int r, int c)
         {
             if (state.Mat[r, c] != 0)
@@ -109,7 +114,7 @@ namespace Soduko_Solver
 
 
             return true;
-        }
+        }*/
         private static bool ChainNakedSingles(SudokuStack s)
         {
             var (r, c) = (0, 0);
@@ -198,8 +203,6 @@ namespace Soduko_Solver
                 state.Weight[targetedR, targetedC]++;
                 int diff = state.Stack.Len - currentState;
                 RollBack(diff,0); // Rollback the changes of a failed recursion (guess) branch
-                //RemoveSeenDigit(num, targetedR, targetedC);
-                //state.Mat[targetedR, targetedC] = 0;
                 bitmask -= pick;
             }
             state.Empties.Insert(targetIndex, (targetedR, targetedC));
