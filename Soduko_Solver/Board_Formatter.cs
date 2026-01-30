@@ -28,9 +28,9 @@ namespace Soduko_Solver
 
         static public void Print_Mat(int[,] mat)
         {
-            for(int i = 0; i < mat.GetLength(0); i++)
+            for (int i = 0; i < mat.GetLength(0); i++)
             {
-                for(int j =0;j<mat.GetLength(0);j++)
+                for (int j = 0; j < mat.GetLength(0); j++)
                     Console.Write(mat[i, j] + " ");
                 Console.WriteLine();
             }
