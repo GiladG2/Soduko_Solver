@@ -8,16 +8,19 @@ namespace Soduko_Solver
 {
     public class SudokuState
     {
-        int[,] mat;
-        int len;
-        SudokuStack s = new SudokuStack();
-        List<(int, int)> empties = new List<(int, int)>();
-        int[] rowsBitMask;
-        int[] colsBitMask;
-        int[] boxesBitMask;
-        int boxSize;
-        int minCluesDensity;
-        int[,] weight;
+        private int[,] mat; // Saves the int[,] representation of the Sudoku board
+        private int len; // Saves the length of the Board (1/4/9/16/25)
+        private SudokuStack s = new SudokuStack(); // Saves the operation stack of the board
+        private List<(int, int)> empties = new List<(int, int)>(); //Saves all the empty cells (row,column) in the board
+        private int[] rowsBitMask; // Saves all the bitmasks that represent each row's domain
+        private int[] colsBitMask; // Saves all the bitmasks numbers that represent each column's domain
+        private int[] boxesBitMask; // Saves all the bitmasks numbers that represent each box's domain
+        private int boxSize; // Saves the board's box size
+        private int minCluesDensity; // Saves the minimum filled cells density required for skipping simple backtracking
+        private int[,] weight; // Saves the weight of each cell ( weight[row,column] )
+        
+        //Properties to get the fields
+        
         public SudokuStack Stack { get => s;set => s = value; }
         public int[,] Mat { get => mat;set=> mat = value; }
         public int Len { get => len;set => len = value; }
@@ -28,6 +31,7 @@ namespace Soduko_Solver
         public int MinClueDensity { get => minCluesDensity;set=> minCluesDensity = value; }
         public List<(int,int)> Empties { get => empties; set => empties = value; }
         public int[,] Weight { get => weight; set => weight = value; }
+        //Constructor
         public SudokuState(int[,] mat) {
             this.mat = mat;
             len = mat.GetLength(0);
@@ -37,19 +41,7 @@ namespace Soduko_Solver
             boxSize = (int)Math.Sqrt(mat.GetLength(0));
             minCluesDensity = (int)(0.94 * mat.GetLength(0) * mat.GetLength(0));
 
-            weight = new int[mat.GetLength(0), mat.GetLength(0)]; // weight[index,value]
-        }
-        public SudokuState(SudokuState state)
-        {
-            this.mat = (int[,])state.Mat.Clone();
-            this.len = state.Len;
-            this.rowsBitMask = (int[])state.RowsBitMask.Clone();
-            this.colsBitMask = (int[])state.ColsBitMask.Clone();
-            this.boxesBitMask = (int[])state.BoxesBitMask.Clone();
-            this.empties = new List<(int, int)>(state.Empties);
-            this.weight = (int[,])state.Weight.Clone();
-            this.boxSize = state.BoxSize;
-            this.minCluesDensity = state.MinClueDensity;
+            weight = new int[mat.GetLength(0), mat.GetLength(0)];
         }
     }
 }

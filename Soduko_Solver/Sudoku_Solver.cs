@@ -18,6 +18,7 @@ namespace Soduko_Solver
         }
         static void ResetEmpties(int[,] mat)
         {
+            //Intialize the empties list
             state.Empties = new List<(int, int)>();
             for (int rows = 0; rows < mat.GetLength(0); rows++)
                 for (int cols = 0; cols < mat.GetLength(0); cols++)
@@ -29,7 +30,7 @@ namespace Soduko_Solver
                 }
         }
 
-        //func that recieves a soduko board and returns true if it is solvable and false if not
+        //func that recieves a Sudoku board and returns true if it is solvable and false if not
         static public string Solve_Sudoku()
         {
             state.Empties.Clear();
@@ -58,6 +59,7 @@ namespace Soduko_Solver
         //Brute force fill if there are not enough constraints to start using MRV
         public static bool SimpleBacktracking(int target, int j = 0)
         {
+            //Filled the neccessary amount of cells
             if (target == 0)
                 return true;
             var (rows, cols) = state.Empties[j];
@@ -81,6 +83,173 @@ namespace Soduko_Solver
             else
                 SimpleBacktracking(target, j + 1);
             return false;
+        }
+        //Function that returns a bit with all the possible values of cell (r,c)
+        private static int GetUsedValues(int r,int c)
+        {
+            int b = (r / state.BoxSize) * state.BoxSize + (c / state.BoxSize);
+            return state.BoxesBitMask[b] | state.RowsBitMask[r] | state.ColsBitMask[c];
+        }
+        //Function that returns the size of the cell's domain (amount of valid options)
+        private static int GetAmoutOfOptions(int used)
+        {
+            return state.Len - Count_Bits(used);
+        }
+        private static bool ChainNakedSingles(SudokuStack s)
+        {
+            var (r, c) = (0, 0);
+            bool propagation = true;
+            do
+            {
+                propagation = false;
+                for (int i = state.Empties.Count - 1; i >= 0; i--)
+                {
+                    (r, c) = state.Empties[i];
+                    int used = GetUsedValues(r, c);
+                    int options = GetAmoutOfOptions(used);
+                    if (options == 0)
+                    {
+                        state.Weight[r, c]++;
+                        return false;
+                    }//Failed branch - a cell's domain = 0, meaning no valid placements in an empty cell
+                    if (options == 1) //A cell with one option - found a naked single
+                    {
+                        propagation = true;
+                        int bitmask = (~used) & ((1 << state.Len) - 1);
+                        int pick = bitmask & (-bitmask);
+                        int num = Get_Bit_Position(pick);
+                        PlaceNumber(num, r, c, i);
+                        state.Empties.RemoveAt(i);
+                    }
+                }
+            }
+            while (propagation);
+            return true;
+        }
+        private static bool IsNakedSinglesEfficient()
+        {
+            return state.Len > 9 // If the mat is large enough
+                && (double)state.Empties.Count / (state.Len * state.Len) < 0.3 // and 70% of the mat is filled 
+                &&!ChainNakedSingles(state.Stack); //chain naked singles
+        }
+        //Function that recieves a number, cell's coordinates and its index in the empties list and places it on the board
+        private static void PlaceNumber(int num,int r,int c,int i)
+        {
+            AddSeenDigits(num, r, c);
+            state.Stack.Push(num, i, r, c);
+            state.Mat[r, c] = num;
+        }
+        private static bool BackTrack()
+        {
+            int before_Naked_Singles = state.Stack.Len;
+            if (IsNakedSinglesEfficient())
+            {
+               RollBack(state.Stack.Len - before_Naked_Singles, 1);// RollBack the changes of a failed naked singles chain
+               return false;
+            }
+            //base case: no empty cells (filled the entire board)
+            if (state.Empties.Count == 0)
+                return true;
+            int minOptions = state.Len + 1,
+                targetIndex = -1,
+                bitmask = 0;
+            //MRV => iterate over empties and find the cell with the least amount of values
+            //if 2 cells have the same amount of options, choose the one 
+            //that has been resulting in more failed sudokus (with the higher weight).
+            for (int i = 0; i < state.Empties.Count; i++)
+            {
+                var (r, c) = state.Empties[i];
+                int used = GetUsedValues(r, c);
+                int options = GetAmoutOfOptions(used);
+                var (minR, minC) = (0, 0);
+                if (targetIndex != -1)
+                    (minR, minC) = state.Empties[targetIndex];
+                if (options < minOptions ||
+                        (targetIndex != -1 
+                        && (options == minOptions 
+                        && state.Weight[r, c] > state.Weight[minR, minC])))// weighted check
+                {
+                    minOptions = options;
+                    targetIndex = i;
+                    bitmask = (~used) & ((1 << state.Len) - 1);
+                    if (options == 1) //Found a naked single => has to have the least amount of options, thus break (finish the search
+                        break;        //for the least amount of options)
+                }
+            }
+            var (targetedR, targetedC) = state.Empties[targetIndex];
+            state.Empties.RemoveAt(targetIndex);
+            while (bitmask > 0)
+            {
+                int currentState = state.Stack.Len;
+                int pick = bitmask & (-bitmask);
+                int num = Get_Bit_Position(pick);
+                PlaceNumber(num,targetedR,targetedC,targetIndex);
+                if (BackTrack())
+                    return true;
+                state.Weight[targetedR, targetedC]++;
+                int diff = state.Stack.Len - currentState;
+                RollBack(diff,0); // Rollback the changes of a failed recursion (guess) branch
+                bitmask -= pick; //Try the next pick
+            }
+            state.Empties.Insert(targetIndex, (targetedR, targetedC));
+            return false;
+        }
+
+        static void RollBack(int diff, int mode)
+        {
+            for (int j = 0; j < diff; j++)
+            {
+                var (number, index, (row, collumn)) = state.Stack.Pop();
+                RemoveSeenDigit(number, row, collumn);
+                state.Mat[row, collumn] = 0;
+                if ((mode == 0 && j != diff - 1) || mode == 1)   //If rolling back from naked singles => roll everything back
+                    state.Empties.Insert(index, (row, collumn)); //If not => do not roll the current guess.
+
+            }
+        }
+        //Function that adds the number k to the bitmasks of row, col and their box
+        static void AddSeenDigits(int k, int row, int col)
+        {
+            if (Is_Already_Placed(state.RowsBitMask[row], k))
+                throw new Duplicate_Val_In_Row(k, row + 1);
+            if (Is_Already_Placed(state.ColsBitMask[col], k))
+                throw new Duplicate_Val_In_Column(k, col + 1);
+            int b = (row / state.BoxSize) * state.BoxSize + (col / state.BoxSize);
+            if (Is_Already_Placed(state.BoxesBitMask[b], k))
+                throw new Duplicate_Val_In_Box(k, b + 1);
+            state.RowsBitMask[row] |= 1 << (k - 1);
+            state.ColsBitMask[col] |= 1 << (k - 1);
+            state.BoxesBitMask[b] |= 1 << (k - 1);
+        }
+        //Func that recives a bitmask and returns the position of the heighest turned on bit in the bitmask
+        static public int Get_Bit_Position(int mask)
+        {
+            int pos = 0;
+            while ((mask >> pos) > 1) pos++;
+            return pos + 1;
+        }
+        //Function that removes the number k from the bitmasks of row, col and their box
+        static void RemoveSeenDigit(int k, int row, int col)
+        {
+            state.RowsBitMask[row] &= ~(1 << ((k - 1)));
+            state.ColsBitMask[col] &= ~(1 << ((k - 1)));
+            state.BoxesBitMask[(row / state.BoxSize) * state.BoxSize + (col / state.BoxSize)] &= ~(1 << ((k - 1)));
+        }
+        //recieves integer n and returns the number of 1 bits in it.
+        public static int Count_Bits(int n)
+        {
+            int count = 0;
+            while (n > 0)
+            {
+                n &= (n - 1);
+                count++;
+            }
+            return count;
+        }
+        //Function that checks if the nth bit is already turned on in bit
+        public static bool Is_Already_Placed(int bit, int n)
+        {
+            return (bit & (1 << (n - 1))) != 0;
         }
         //Commented due to making my solver slower
         /*
@@ -114,154 +283,5 @@ namespace Soduko_Solver
 
             return true;
         }*/
-        private static bool ChainNakedSingles(SudokuStack s)
-        {
-            var (r, c) = (0, 0);
-            bool propagation = true;
-            do
-            {
-                propagation = false;
-                for (int i = state.Empties.Count - 1; i >= 0; i--)
-                {
-                    (r, c) = state.Empties[i];
-                    int b = (r / state.BoxSize) * state.BoxSize + (c / state.BoxSize);
-                    int used = state.BoxesBitMask[b] | state.RowsBitMask[r] | state.ColsBitMask[c];
-                    int options = state.Len - Count_Bits(used);
-                    if (options == 0)
-                        return false;
-                    if (options == 1)
-                    {
-                        propagation = true;
-                        int bitmask = (~used) & ((1 << state.Len) - 1);
-                        int pick = bitmask & (-bitmask);
-                        int num = Get_Bit_Position(pick);
-                        AddSeenDigits(num, r, c);
-                        state.Mat[r, c] = num;
-                        state.Empties.RemoveAt(i);
-                        s.Push(num, i, r, c);
-
-                    }
-                }
-            }
-            while (propagation);
-            return true;
-        }
-        private static bool IsNakedSinglesEfficient()
-        {
-            return state.Len > 9 // If the mat is large enough
-                && (double)state.Empties.Count / (state.Len * state.Len) < 0.3 // and 70% of the mat is filled 
-                &&!ChainNakedSingles(state.Stack); //chain naked singles
-        }
-        private static bool BackTrack()
-        {
-            int before_Naked_Singles = state.Stack.Len;
-            if (IsNakedSinglesEfficient())
-            {
-               RollBack(state.Stack.Len - before_Naked_Singles, 1);
-               return false;
-            }
-            //base case: no empty cells (filled the entire board)
-
-            if (state.Empties.Count == 0)
-                return true;
-            int minOptions = state.Len + 1,
-                targetIndex = -1,
-                bitmask = 0;
-            //MRV => iterate over empties and find the cell with the least amount of values
-            //if 2 cells have the same amount of options, choose the one 
-            //that has been resulting in more failed sudokus (with the higher weight).
-            for (int i = 0; i < state.Empties.Count; i++)
-            {
-                var (r, c) = state.Empties[i];
-                int b = (r / state.BoxSize) * state.BoxSize + (c / state.BoxSize);
-                int used = state.BoxesBitMask[b] | state.RowsBitMask[r] | state.ColsBitMask[c];
-                int options = state.Len - Count_Bits(used);
-                var (minR, minC) = (0, 0);
-                if (targetIndex != -1)
-                    (minR, minC) = state.Empties[targetIndex];
-                if (options < minOptions ||
-                    (targetIndex != -1 && (options == minOptions && state.Weight[r, c] > state.Weight[minR, minC])))// weighted check
-                {
-                    minOptions = options;
-                    targetIndex = i;
-                    bitmask = (~used) & ((1 << state.Len) - 1);
-                    if (options == 1)
-                        break;
-                }
-            }
-            var (targetedR, targetedC) = state.Empties[targetIndex];
-            state.Empties.RemoveAt(targetIndex);
-            while (bitmask > 0)
-            {
-                int currentState = state.Stack.Len;
-                int pick = bitmask & (-bitmask);
-                int num = Get_Bit_Position(pick);
-                AddSeenDigits(num, targetedR, targetedC);
-                state.Stack.Push(num, targetIndex, targetedR, targetedC);
-                state.Mat[targetedR, targetedC] = num;
-                if (BackTrack())
-                    return true;
-                state.Weight[targetedR, targetedC]++;
-                int diff = state.Stack.Len - currentState;
-                RemoveSeenDigit(num, targetedR, targetedC);
-                state.Mat[targetedR, targetedC] = 0;
-                RollBack(diff,0); // Rollback the changes of a failed recursion (guess) branch
-                bitmask -= pick;
-            }
-            state.Empties.Insert(targetIndex, (targetedR, targetedC));
-            return false;
-        }
-        static void RollBack(int diff, int mode)
-        {
-            for (int j = 0; j < diff; j++)
-            {
-                var (number, index, (row, collumn)) = state.Stack.Pop();
-                RemoveSeenDigit(number, row, collumn);
-                state.Mat[row, collumn] = 0;
-                if ((mode == 0 && j != diff - 1) || mode == 1)
-                    state.Empties.Insert(index, (row, collumn));
-            }
-        }
-        static void AddSeenDigits(int k, int row, int col)
-        {
-            if (Is_Already_Placed(state.RowsBitMask[row], k))
-                throw new Duplicate_Val_In_Row(k, row + 1);
-            if (Is_Already_Placed(state.ColsBitMask[col], k))
-                throw new Duplicate_Val_In_Column(k, col + 1);
-            int b = (row / state.BoxSize) * state.BoxSize + (col / state.BoxSize);
-            if (Is_Already_Placed(state.BoxesBitMask[b], k))
-                throw new Duplicate_Val_In_Box(k, b + 1);
-            state.RowsBitMask[row] |= 1 << (k - 1);
-            state.ColsBitMask[col] |= 1 << (k - 1);
-            state.BoxesBitMask[b] |= 1 << (k - 1);
-        }
-        static public int Get_Bit_Position(int mask)
-        {
-            int pos = 0;
-            while ((mask >> pos) > 1) pos++;
-            return pos + 1;
-        }
-        static void RemoveSeenDigit(int k, int row, int col)
-        {
-            state.RowsBitMask[row] &= ~(1 << ((k - 1)));
-            state.ColsBitMask[col] &= ~(1 << ((k - 1)));
-            state.BoxesBitMask[(row / state.BoxSize) * state.BoxSize + (col / state.BoxSize)] &= ~(1 << ((k - 1)));
-        }
-        //recieves integer n and returns the number of 1 bits in it.
-        public static int Count_Bits(int n)
-        {
-            int count = 0;
-            while (n > 0)
-            {
-                n &= (n - 1);
-                count++;
-            }
-            return count;
-        }
-        public static bool Is_Already_Placed(int bit, int n)
-        {
-            return (bit & (1 << (n - 1))) != 0;
-        }
-
     }
 }

@@ -11,6 +11,7 @@ namespace Soduko_Solver
     public class Tester
     {
         public static Random rnd = new Random();
+        // Randomly remove target amount of cells in a solved mat.
         static public string GenerateSudokuBoard(int[,] mat, int target)
         {
             int r, c;
@@ -31,6 +32,7 @@ namespace Soduko_Solver
                     matString += (char)('0' + mat[i, j]);
             return matString;
         }
+        //Test a solved mat in order to check if does not condradict the Sudoku's rules
         static public bool TestSolvedSudoku(int[,] solvedMat,bool solved = true)
         {
             bool[,] rows = new bool[solvedMat.GetLength(0),solvedMat.GetLength(0)];
