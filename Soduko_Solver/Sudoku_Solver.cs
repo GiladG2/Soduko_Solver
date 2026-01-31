@@ -186,6 +186,8 @@ namespace Soduko_Solver
                     minOptions = options;
                     targetIndex = i;
                     bitmask = (~used) & ((1 << state.Len) - 1);
+                    if (options == 1)
+                        break;
                 }
             }
             var (targetedR, targetedC) = state.Empties[targetIndex];
