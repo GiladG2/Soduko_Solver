@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Soduko_Solver
 {
-    internal class Board_Formatter
+    public class Board_Formatter
     {
         static public int[,] Format(string baseMat)
         {

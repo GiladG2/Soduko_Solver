@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Soduko_Solver
 {
-    internal class Program
+    public class Program
     {
         static public float Test(string matBase)
         {
@@ -37,7 +37,7 @@ namespace Soduko_Solver
                 Console.WriteLine();
                 Console.WriteLine();
             }
-            catch (Invalid_Length_Exception ex) { }
+            catch (Invalid_Length_Exception ex) {}
             catch (Invalid_Character_Exception ex) { }
             catch (Duplicate_Val_In_Box ex) { }
             catch (Unsolvable_Mat_Exception ex) { }

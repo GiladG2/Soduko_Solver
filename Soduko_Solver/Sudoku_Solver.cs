@@ -9,10 +9,9 @@ using System.Threading.Tasks;
 
 namespace Soduko_Solver
 {
-    internal class Sudoku_Solver
+    public class Sudoku_Solver
     {
         public static SudokuState state;
-
         public Sudoku_Solver(int[,] mat)
         {
             state = new SudokuState(mat);

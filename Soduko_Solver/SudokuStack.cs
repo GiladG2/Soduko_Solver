@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Soduko_Solver
 {
-    internal class SudokuStack
+    public class SudokuStack
     {
         Stack<(int, int, (int, int))> s = new Stack<(int, int, (int, int))>();
         int len = 0;
