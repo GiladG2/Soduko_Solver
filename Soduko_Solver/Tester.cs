@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Soduko_Solver
 {
-    internal class Tester
+    public class Tester
     {
         public static Random rnd = new Random();
         static public string GenerateSudokuBoard(int[,] mat, int target)

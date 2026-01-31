@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Soduko_Solver
 {
-    internal class SudokuState
+    public class SudokuState
     {
         int[,] mat;
         int len;
