@@ -34,7 +34,7 @@ namespace Soduko_Solver
                 }
             //Fill with simple brute force in order to have enough constraints for the MRV
             if (state.Empties.Count > state.MinClueDensity)
-                SimpleBacktracking(state.Empties.Count - state.MinClueDensity); 
+               SimpleBacktracking(state.Empties.Count - state.MinClueDensity); 
             ResetEmpties(state.Mat);
             string matString = "";
             //Continue solving after using simpler brute force
@@ -123,11 +123,9 @@ namespace Soduko_Solver
         {
             int[] domain = GetDomain(used);//Get cell (r,c)'s domain    
             LCV_Value[] lcvSortedArray = new LCV_Value[domain.Length];
-            //If there are not a lof of options LCV is not efficient, thus skipping it
-            if (domain.Length < 3)
-            {
-                for (int i = 0; i < domain.Length; i++)
-                    lcvSortedArray[i] = new LCV_Value(0, domain[i]);
+            //If found a naked single do not do redundant for loops
+            if (domain.Length == 1) {
+                lcvSortedArray[0] = new LCV_Value(0,domain[0]);
                 return lcvSortedArray;
             }
             int currentOptionsRemoved = 0;
