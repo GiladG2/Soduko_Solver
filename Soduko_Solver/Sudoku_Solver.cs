@@ -139,16 +139,23 @@ namespace Soduko_Solver
             state.Stack.Push(num, i, r, c);
             state.Mat[r, c] = num;
         }
-        //Return the number in the domain that leaves the most amount of options to its peers
+        //Return a sorted array where the value that removes the least amount of options is at the start
         private static LCV_Value[] LCV(int r,int c,int used)
         {
-            int[] domain = GetDomain(used);
-            int options = GetAmoutOfOptions(used);
+            int[] domain = GetDomain(used);//Get cell (r,c)'s domain    
+            LCV_Value[] lcvSortedArray = new LCV_Value[domain.Length];
+            if (domain.Length < 3)
+            {
+                for (int i = 0; i < domain.Length; i++)
+                    lcvSortedArray[i] = new LCV_Value(0, domain[i]);
+                return lcvSortedArray;
+            }
             int currentOptionsRemoved = 0;
-            LCV_Value[] lcvSortedArray = new LCV_Value[options];
-            for(int i = 0; i < options; i++)
+            for(int i = 0; i < domain.Length; i++)
             {
                 currentOptionsRemoved = 0;
+
+                //Check how many options value removes from its column
                 for(int j = 0;j<state.Len;j++)
                 {
                     if (j == r)
@@ -156,13 +163,15 @@ namespace Soduko_Solver
                     if (state.Mat[j,c] == 0 && !Is_Already_Placed(GetUsedValues(j,c), domain[i]))
                         currentOptionsRemoved++;
                 }
-                for(int j = 0; j < state.Len; j++)
+                //Check how many options value removes from its row
+                for (int j = 0; j < state.Len; j++)
                 {
                     if (j == c)
                         continue;
                     if (state.Mat[r, j] == 0 && !Is_Already_Placed(GetUsedValues(r,j), domain[i]))
                         currentOptionsRemoved++;
                 }
+                //Check how many options value removes from its box
                 int boxS = (r / state.BoxSize) * state.BoxSize;
                 int boxF = (c / state.BoxSize) * state.BoxSize;
                 for (int k = boxS; k < boxS + state.BoxSize; k++)
@@ -175,6 +184,7 @@ namespace Soduko_Solver
                     }
                 lcvSortedArray[i] = new LCV_Value(currentOptionsRemoved, domain[i]);
             }
+            //Sort the array with CompareTo written in LCV_Value
             Array.Sort(lcvSortedArray);
             return lcvSortedArray;
         }
@@ -223,7 +233,7 @@ namespace Soduko_Solver
             for(int i =0;i<domain.Length;i++)
             {
                 int currentState = state.Stack.Len;
-                int num = domain[i].Value;
+                int num = domain[i].Value; //Get the best value based on LCV
                 PlaceNumber(num, targetedR, targetedC, targetIndex);
                 if (BackTrack())
                     return true;
