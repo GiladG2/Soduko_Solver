@@ -25,6 +25,8 @@ namespace Soduko_Solver
             for (int rows = 0; rows < state.Mat.GetLength(0); rows++)
                 for (int cols = 0; cols < state.Mat.GetLength(0); cols++)
                 {
+                    if (state.Mat[rows, cols] == -16)
+                        throw new Invalid_Space_Exception();
                     if (state.Mat[rows, cols] + '0' < '0' || state.Mat[rows, cols] > state.Mat.GetLength(0))
                         throw new Invalid_Character_Exception(state.Mat[rows, cols], rows + 1, cols + 1);
                     if (state.Mat[rows, cols] != 0)

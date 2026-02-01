@@ -40,6 +40,7 @@ namespace Soduko_Solver
             catch (Duplicate_Val_In_Column ex) { }
             catch (Duplicate_Val_In_Row ex) { }
             catch (Empty_Board_Exception ex) { }
+            catch (Invalid_Space_Exception ex) { }
             return final_mat;
         }
     }

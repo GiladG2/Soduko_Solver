@@ -56,4 +56,8 @@ namespace Soduko_Solver
     {
         public Empty_Board_Exception() : base("Attempt to solve an empty board") { }
     }
+    public class Invalid_Space_Exception : Base_Exceptions
+    {
+        public Invalid_Space_Exception() : base("Sudoku board cannot have spaces") { }
+    }
 }
