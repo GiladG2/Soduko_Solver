@@ -133,5 +133,13 @@ namespace SudokuSolverTests
             int[,] solvedMat = Board_Formatter.Format(solvedMatBase);
             Assert.AreEqual(true, sw.ElapsedMilliseconds < 1000);
         }
+        [TestMethod]
+        public void Space_Exception_Test()
+        {
+            string invalid_sudoku = " ";
+            int[,] invalid_mat = Board_Formatter.Format(invalid_sudoku);
+            Sudoku_Solver s = new Sudoku_Solver(invalid_mat);
+            Assert.ThrowsException<Invalid_Space_Exception>(() => Sudoku_Solver.Solve_Sudoku());
+        }
     }
 }
