@@ -13,7 +13,7 @@ There are examples in the last part of this README.
 # The Sudoku solver
 The solver uses various algorithms and optimizations in order to solve any Sudoku.
 ## MRV
-The solver implements MRV (minimum remaining values), an algorithm where the next chosen cell/guess is the cell with the smallest domain of options.
+The solver implements MRV (Minimum remaining values), an algorithm where the next chosen cell/guess is the cell with the smallest domain of options.
 Assume $cell_1$'s domain is $$d_1 = \\{1,2,5,7\\}$$ => 4 options and $cell_2$'s domain is $$d_2 = \\{3,8,9\\}$$ => 3 options
 $cell_2$ will be the next cell that is being guessed.
 ## Degree Heuristic tie-breaker
@@ -22,6 +22,10 @@ If 2 cells have the same amount of options, the cell that will be chosen is the 
 If a guess in cell $(r,c)$ has resulted in a failed sudoku (failed recursion branch), the weight of $(r,c)$ will increment by one.
 Meaning that a high weight indicates a cell that has been causing failed branches more often than other cells, thus needing to be guessed earlier to
 save on the failed branches it could create in other branches. 
+## LCV
+The solver also implements LCV (Least constraining value). Up until this point, every part of the solver was logical, with no guessing.
+In order to make my solver completely logical, I wanted to find a way to not only pick the next cell logicaly, but also what value was going to be placed.
+In order to accomplish that, I implemented LCV => the next value that is being placed in the cell is the value that left the most amount of options for its peers.
 ## Bitmask Optimizations
 Representing all of the valid digits in $row_i$ , $box_i$ and $column_i$ with an array of binary number (int),
 where if the digit at position n is 1 at row/column/box[i], then n is already placed in $row_i$ / $box_i$ / $column_i$ , leading
