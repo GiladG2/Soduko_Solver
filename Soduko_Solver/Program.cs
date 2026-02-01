@@ -14,7 +14,22 @@ namespace Soduko_Solver
         
         static void Main(string[] args)
         {
-            string matBase = ""; //saves the string of the mat
+            int used = 45;
+            int[] domain = new int[5];
+            int k = 0;
+            Console.WriteLine(9 - Sudoku_Solver.Count_Bits(used));
+            for (int j = 0; j < 9; j++)
+            {
+                if ((used & 1) == 0)
+                {
+                    domain[k] = j + 1;
+                    k++;
+                }
+                used >>= 1;
+            }
+            for (int i = 0; i < 5; i++)
+                Console.Write($"domain[{i}] => {domain[i]} ");
+        string matBase = ""; //saves the string of the mat
             Stopwatch sw = new Stopwatch();
             Console.WriteLine("Write 'End' to exit the solver");
             while (true)
@@ -27,10 +42,10 @@ namespace Soduko_Solver
                 if(matBase == "Fight")
                 {
                     sw.Start();
-                    for (int i = 0; i < 500; i++)
+                    for (int i = 0; i < 10; i++)
                     {
                         Console.WriteLine($"Sudoku num. {i + 1}");
-                        string testMat = "831529674796814253542637189159783426483296715627145938365471892274958361918362547";
+                        string testMat = "1E45326789;=>?F@AB<CD:GHI?=DFGEHI14:@ABC7352896;<>96BCH;<>A:13457DEFGI82=?@278:;@CDFGE9<HI64=>?13AB5<>@AI5=?B3268DG1H9:;C4EF7F3=>@42<HICD6E1A58B7?G9:;B:7I6>AGE@4F5;?C=2D9H1<384?A2<C185FHI3@9G6;E:>BD7=E5;H8BD:9=<>7G24?1F3@I6CAG19DC673;?A8:=BI@>H<2E45F:9CG=34A62FBI7;H>D85<@?E1D<26495C=1@?E83BIA7G:>F;H;@?B5:>ED7GA24HF9<C1=83I6AIH37<@FG86:91>=;E?45DB2C8F>E1?BHI;D<=C52:@36497AG=H37F8952<BE16@:C?IDA;>G4I2G9A=;63>?7C:48FH5EB<@1D5DE4>F?@:A3G;<=9176BIHC8268<?BGE17CI5HAD;24@>3F:=9C;1@:HIB4D92F>8<G3A=E756?H4I<?A39>B=;@2E57G1F6C8D:@A6=218;?E74DF:3<C9HG5I>B3GF1ED:=@H5CB96>8I;A7?24<7C58DIF2<6>HG3A?B:4@;=19E>B:;97G4C581?I<ED6=2FAH@3";
                         int[,] testMatFormatted = Board_Formatter.Format(testMat);
                         Sudoku_Solver s2 = new Sudoku_Solver(testMatFormatted);
                         testMat = Tester.GenerateSudokuBoard(testMatFormatted, (int)(testMatFormatted.GetLength(0) * testMatFormatted.GetLength(0) * 0.97));

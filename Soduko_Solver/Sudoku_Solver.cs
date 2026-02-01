@@ -91,7 +91,7 @@ namespace Soduko_Solver
             return state.BoxesBitMask[b] | state.RowsBitMask[r] | state.ColsBitMask[c];
         }
         //Function that returns the size of the cell's domain (amount of valid options)
-        private static int GetAmoutOfOptions(int used)
+        public static int GetAmoutOfOptions(int used)
         {
             return state.Len - Count_Bits(used);
         }
@@ -139,6 +139,46 @@ namespace Soduko_Solver
             state.Stack.Push(num, i, r, c);
             state.Mat[r, c] = num;
         }
+        //Return the number in the domain that leaves the most amount of options to its peers
+        private static LCV_Value[] LCV(int r,int c,int used)
+        {
+            int[] domain = GetDomain(used);
+            int options = GetAmoutOfOptions(used);
+            int currentOptionsRemoved = 0;
+            LCV_Value[] lcvSortedArray = new LCV_Value[options];
+            for(int i = 0; i < options; i++)
+            {
+                currentOptionsRemoved = 0;
+                for(int j = 0;j<state.Len;j++)
+                {
+                    if (j == r)
+                        continue;
+                    if (state.Mat[j,c] == 0 && !Is_Already_Placed(GetUsedValues(j,c), domain[i]))
+                        currentOptionsRemoved++;
+                }
+                for(int j = 0; j < state.Len; j++)
+                {
+                    if (j == c)
+                        continue;
+                    if (state.Mat[r, j] == 0 && !Is_Already_Placed(GetUsedValues(r,j), domain[i]))
+                        currentOptionsRemoved++;
+                }
+                int boxS = (r / state.BoxSize) * state.BoxSize;
+                int boxF = (c / state.BoxSize) * state.BoxSize;
+                for (int k = boxS; k < boxS + state.BoxSize; k++)
+                    for (int j = boxF; j < boxF + state.BoxSize; j++)
+                    {
+                        if (k == r || j == c )
+                            continue;
+                        if (state.Mat[k,j] == 0 && !Is_Already_Placed((GetUsedValues(k, j)), domain[i]))
+                            currentOptionsRemoved++;
+                    }
+                lcvSortedArray[i] = new LCV_Value(currentOptionsRemoved, domain[i]);
+            }
+            Array.Sort(lcvSortedArray);
+            return lcvSortedArray;
+        }
+
         private static bool BackTrack()
         {
             int before_Naked_Singles = state.Stack.Len;
@@ -178,18 +218,18 @@ namespace Soduko_Solver
             }
             var (targetedR, targetedC) = state.Empties[targetIndex];
             state.Empties.RemoveAt(targetIndex);
-            while (bitmask > 0)
+            int usedValues = GetUsedValues(targetedR, targetedC);
+            LCV_Value[] domain = LCV(targetedR, targetedC, usedValues);
+            for(int i =0;i<domain.Length;i++)
             {
                 int currentState = state.Stack.Len;
-                int pick = bitmask & (-bitmask);
-                int num = Get_Bit_Position(pick);
-                PlaceNumber(num,targetedR,targetedC,targetIndex);
+                int num = domain[i].Value;
+                PlaceNumber(num, targetedR, targetedC, targetIndex);
                 if (BackTrack())
                     return true;
                 state.Weight[targetedR, targetedC]++;
                 int diff = state.Stack.Len - currentState;
-                RollBack(diff,0); // Rollback the changes of a failed recursion (guess) branch
-                bitmask -= pick; //Try the next pick
+                RollBack(diff, 0);
             }
             state.Empties.Insert(targetIndex, (targetedR, targetedC));
             return false;
@@ -227,6 +267,22 @@ namespace Soduko_Solver
             int pos = 0;
             while ((mask >> pos) > 1) pos++;
             return pos + 1;
+        }
+        //Function that returns an array of the domain
+        public static int[] GetDomain(int used)
+        {
+            int[] domain = new int[GetAmoutOfOptions(used)];
+            int k = 0;
+            for (int j = 0; j < state.Len; j++)
+            {
+                if ((used & 1) == 0)
+                {
+                    domain[k] = j + 1;
+                    k++;
+                }
+                used >>= 1;
+            }
+            return domain;
         }
         //Function that removes the number k from the bitmasks of row, col and their box
         static void RemoveSeenDigit(int k, int row, int col)

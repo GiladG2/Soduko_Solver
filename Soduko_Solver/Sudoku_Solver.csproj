@@ -61,6 +61,7 @@
   <ItemGroup>
     <Compile Include="Board_Formatter.cs" />
     <Compile Include="Base_Exceptions.cs" />
+    <Compile Include="LCV_Value.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SudokuStack.cs" />
