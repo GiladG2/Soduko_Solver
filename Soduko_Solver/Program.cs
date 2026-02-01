@@ -13,8 +13,6 @@ namespace Soduko_Solver
     {
         static void Main(string[] args)
         {
-            int[] a = { };
-            Console.WriteLine(a.Length);
             Console.WriteLine("Welcome to my Sudoku solver");
             Console.WriteLine();
             string matBase = ""; //saves the string of the mat
