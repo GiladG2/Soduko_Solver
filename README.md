@@ -33,7 +33,7 @@ to O(1) placement, removal and checking if n has already been placed in the boar
 ## Simple Backtracking mode
 Due to the reliance of MRV on constraints, it fails to solve in a reasonable time an empty sudoku.
 Without constraints, MRV won't have a purpose because most cells's domain contains 80% of the possible numbers,
-leading to millions of recursion branches anf guesses.
+leading to millions of recursion branches and guesses.
 In order to address this problem and make MRV more effiecient, I added a simple brute-force backtracking, that is only triggered once at the start 
 of the solver if No. of empty cells > 94% of Board Size = No. of filled cells < 6% of Board Size.
 Recorded execution times using various precentages (90% - 100%) in order to cultivate that 94% results in the fastest runs. 
