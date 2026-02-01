@@ -28,8 +28,8 @@ In order to make my solver completely logical, I wanted to find a way to not onl
 In order to accomplish that, I implemented LCV => the next value that is being placed in the cell is the value that leaves the most amount of options for its peers (the value that constraints other peers the least).
 ### Example
 Assume $cell_1$'s domain is $$d_1 = \\{1,7\\}$$ and its peers $cell_2$ and $cell_3$'s are $$d_2 = \\{1,2,5\\}$$ and $$d_3 = \\{1,5,7\\}$$ respectively. <br/>
-Choosing 1 leaves $$d_2 = \\{2,5\\}$$ and $$d_3 = \\{5,7\\}$$, removing 2 options and leaving 4 ($|d_t| = 4$) <br/>
-Choosing 7 leaves $$d_2 = \\{1,2,5\\}$$ and $$d_3 = \\{1,5\\}$$, removing 1 option and leaving 5 ($|d_t| = 5$),
+Choosing 1 leaves $$d_2 = \\{2,5\\}$$ and $$d_3 = \\{5,7\\}$$, removing 2 options and leaving 4 <br/>
+Choosing 7 leaves $$d_2 = \\{1,2,5\\}$$ and $$d_3 = \\{1,5\\}$$, removing 1 option and leaving 5,
 thus the solver will place 7 in $cell_1$.
 ## Bitmask Optimizations
 Representing all of the valid digits in $row_i$ , $box_i$ and $column_i$ with an array of binary number (int),
