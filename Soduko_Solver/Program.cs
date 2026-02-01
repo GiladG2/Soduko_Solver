@@ -11,9 +11,12 @@ namespace Soduko_Solver
 {
     public class Program
     {
-        
         static void Main(string[] args)
         {
+            int[] a = { };
+            Console.WriteLine(a.Length);
+            Console.WriteLine("Welcome to my Sudoku solver");
+            Console.WriteLine();
             string matBase = ""; //saves the string of the mat
             Stopwatch sw = new Stopwatch();
             Console.WriteLine("Write 'End' to exit the solver");
@@ -33,38 +36,14 @@ namespace Soduko_Solver
                         int[,] testMatFormatted = Board_Formatter.Format(testMat);
                         Sudoku_Solver s2 = new Sudoku_Solver(testMatFormatted);
                         testMat = Tester.GenerateSudokuBoard(testMatFormatted, (int)(testMatFormatted.GetLength(0) * testMatFormatted.GetLength(0) * 0.97));
-                        Sudoku_Runner.Run(testMat);
+                        Sudoku_Runner.Run(testMat); // Solve the generated hard sudoku
                     }
                     sw.Stop();
                     Console.WriteLine(sw.Elapsed);
                     sw.Reset();
                     continue;
                 }
-                if(matBase == "a25")
-                {
-                    sw.Start();
-                    for (int i = 0; i < 100; i++)
-                    {
-                        Console.WriteLine($"Sudoku num. {i}");
-                        Sudoku_Runner.Run("0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000");
-                    }
-                    sw.Stop();
-                    Console.WriteLine(sw.Elapsed);
-                    sw.Reset();
-                    continue;
-                }
-
-                if(matBase == "again")
-                {
-                    sw.Start();
-                    for (int i = 0; i < 1000; i++)
-                        Sudoku_Runner.Run("0E003000000000F000<0000000=00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000009000000400000000000000000000000000000000000000000000000000000500000000000000000000000700000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000B000000000000000000000000000000000000000000000000000000000000000000C00000000000000000000000000000000000000000000A000");
-                    sw.Stop();
-                    Console.WriteLine(sw.Elapsed);
-                    sw.Reset();
-                    continue;
-                }
-                Sudoku_Runner.Run(matBase);
+                Sudoku_Runner.Run(matBase); // Solve the Sudoku
             }
             Console.WriteLine("Thanks for using my Sudoku Solver!");
         }

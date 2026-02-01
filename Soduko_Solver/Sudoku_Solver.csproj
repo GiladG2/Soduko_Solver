@@ -68,6 +68,7 @@
     <Compile Include="SudokuState.cs" />
     <Compile Include="Sudoku_Runner.cs" />
     <Compile Include="Sudoku_Solver.cs" />
+    <Compile Include="Sudoku_Solver_Helper.cs" />
     <Compile Include="Tester.cs" />
   </ItemGroup>
   <ItemGroup>
