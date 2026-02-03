@@ -33,7 +33,7 @@ Choosing 7 leaves $$d_2 = \\{1,2,5\\}$$ and $$d_3 = \\{1,5\\}$$, removing 1 opti
 thus the solver will place 7 in $cell_1$.
 ## Bitmask Optimizations
 Representing all of the valid digits in $row_i$ , $box_i$ and $column_i$ with an array of binary number (int),
-where if the digit at position n is 1 at row/column/box[i], then n is already placed in $row_i$ / $box_i$ / $column_i$ , leading
+where if the bit at position n is 1 at row/column/box[i], then n is already placed in $row_i$ / $box_i$ / $column_i$ , leading
 to O(1) placement, removal and checking if n has already been placed in the board with bitwise operations.
 ## Simple Backtracking mode
 Due to the reliance of MRV on constraints, it fails to solve in a reasonable time an empty sudoku.
