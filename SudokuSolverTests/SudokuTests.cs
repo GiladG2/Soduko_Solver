@@ -133,6 +133,7 @@ namespace SudokuSolverTests
             int[,] solvedMat = Board_Formatter.Format(solvedMatBase);
             Assert.AreEqual(true, sw.ElapsedMilliseconds < 1000);
         }
+        //Test to check if Invalid_Space_Exception is thrown when there is a space in the board the user entered
         [TestMethod]
         public void Space_Exception_Test()
         {

@@ -174,8 +174,8 @@ namespace Soduko_Solver
             int before_Naked_Singles = state.Stack.Len;
             if (IsNakedSinglesEfficient())
             {
-               RollBack(state.Stack.Len - before_Naked_Singles, 1);// RollBack the changes of a failed naked singles chain
-               return false;
+                RollBack(state.Stack.Len - before_Naked_Singles, 1);// RollBack the changes of a failed naked singles chain
+                return false;
             }
             //base case: no empty cells (filled the entire board)
             if (state.Empties.Count == 0)
@@ -227,37 +227,5 @@ namespace Soduko_Solver
 
 
         
-        //Commented due to making my solver slower
-        /*
-        private static int CalculateOptions(int r, int c)
-        {
-            if (state.Mat[r, c] != 0)
-                return -1;
-            int b = (r / state.BoxSize) * state.BoxSize + (c / state.BoxSize);
-            int used = state.BoxesBitMask[b] | state.RowsBitMask[r] | state.ColsBitMask[c];
-            return state.Len - Count_Bits(used);
-        }
-        private static bool ForwardChecking(int r, int c)
-        {
-            for (int i = 0; i < state.Len; i++)
-                if (r != i && CalculateOptions(i, c) == 0)
-                    return false;
-            for (int i = 0; i < state.Len; i++)
-                if (i != c && CalculateOptions(r, i) == 0)
-                    return false;
-            int boxS = (r / state.BoxSize) * state.BoxSize;
-            int boxF = (c / state.BoxSize) * state.BoxSize;
-            for (int i = boxS; i < boxS + state.BoxSize; i++)
-                for (int j = boxF; j < boxF + state.BoxSize; j++)
-                {
-                    if (i == r && j == c)
-                        continue;
-                    if (CalculateOptions(i, j) == 0)
-                        return false;
-                }
-
-
-            return true;
-        }*/
     }
 }

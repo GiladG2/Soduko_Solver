@@ -11,6 +11,7 @@ namespace Soduko_Solver
 {
     public class Board_Formatter
     {
+        //Function to format a Sudoku board string into a 2-dimensional array
         static public int[,] Format(string baseMat)
         {
             int n = baseMat.Length;
@@ -26,6 +27,7 @@ namespace Soduko_Solver
             return mat;
         }
 
+        //Function to print a Sudoku board
         static public void Print_Mat(int[,] mat)
         {
             int boxSize = (int)Math.Sqrt(mat.GetLength(0));
