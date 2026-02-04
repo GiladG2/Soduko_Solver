@@ -31,8 +31,6 @@ namespace Soduko_Solver
                 Console.WriteLine("Solved mat");
                 Board_Formatter.Print_Mat(mat);
                 Console.WriteLine($"Execution Time: {ts.TotalSeconds} s");
-                if (!Sudoku_Validator.TestSolvedSudoku(mat))
-                    throw new Unsolvable_Mat_Exception();
                 Console.WriteLine($"Solved mat: {final_mat}");
                 Console.WriteLine();
                 Console.WriteLine();

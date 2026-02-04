@@ -107,8 +107,7 @@ namespace Soduko_Solver
         //Function that returns if it is effiecient to chain naked singles
         private static bool IsNakedSinglesEfficient()
         {
-            return state.Len > 9 // If the mat is large enough
-                && (double)state.Empties.Count / (state.Len * state.Len) < 0.3 // and 70% of the mat is filled 
+            return (double)state.Empties.Count / (state.Len * state.Len) < 1 // and 70% of the mat is filled 
                 &&!ChainNakedSingles(state.Stack); //chain naked singles
         }
         //Function that recieves a number, cell's coordinates and its index in the empties list and places it on the board
