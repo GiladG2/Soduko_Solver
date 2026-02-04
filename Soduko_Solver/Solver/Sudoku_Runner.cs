@@ -7,6 +7,10 @@ using System.Threading.Tasks;
 
 namespace Soduko_Solver
 {
+    /// <summary>
+    /// The class Sudoku Runner's purpose is to go over the entire workflow of the solver
+    /// Run recieves a board as a string and returns the final solved Sudoku string
+    /// </summary>
     public class Sudoku_Runner
     {
         public static string Run(string matBase)
@@ -27,7 +31,7 @@ namespace Soduko_Solver
                 Console.WriteLine("Solved mat");
                 Board_Formatter.Print_Mat(mat);
                 Console.WriteLine($"Execution Time: {ts.TotalSeconds} s");
-                if (!Tester.TestSolvedSudoku(mat))
+                if (!Sudoku_Validator.TestSolvedSudoku(mat))
                     throw new Unsolvable_Mat_Exception();
                 Console.WriteLine($"Solved mat: {final_mat}");
                 Console.WriteLine();

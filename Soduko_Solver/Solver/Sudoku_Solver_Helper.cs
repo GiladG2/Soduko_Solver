@@ -111,5 +111,13 @@ namespace Soduko_Solver
         {
             return (bit & (1 << (n - 1))) != 0;
         }
+        //Function to return if a value has not been placed in a row, column and a box
+        public static bool Is_Placeable(int rows,int cols,int value)
+        {
+            int b = (rows / state.BoxSize) * state.BoxSize + (cols / state.BoxSize);
+            return (!Is_Already_Placed(state.RowsBitMask[rows], value)
+                        && !Is_Already_Placed(state.ColsBitMask[cols], value)
+                        && !Is_Already_Placed(state.BoxesBitMask[b], value));
+        }
     }
 }

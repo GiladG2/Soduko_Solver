@@ -66,7 +66,7 @@ namespace SudokuSolverTests
             //Assume solved mat is the final board returned by my solver (Backtracking() returned false)
             string final_string = "800000070006010053040600000000080400003000700020000038000000800004050061900002000";
             int[,] final_mat = Board_Formatter.Format(final_string);
-            Assert.AreEqual(false,Tester.TestSolvedSudoku(final_mat));
+            Assert.AreEqual(false,Sudoku_Validator.TestSolvedSudoku(final_mat));
         }
         //Tests to see the ability of the solver to solve various sizes
         //if the TestSolvedSudoku returned true, than the board has been solved correctly
@@ -78,7 +78,7 @@ namespace SudokuSolverTests
             Sudoku_Solver s = new Sudoku_Solver(mat);
             string solvedMatBase = Sudoku_Solver.Solve_Sudoku();
             int[,] solvedMat = Board_Formatter.Format(solvedMatBase);
-            Assert.AreEqual(true, Tester.TestSolvedSudoku(solvedMat));
+            Assert.AreEqual(true, Sudoku_Validator.TestSolvedSudoku(solvedMat));
         }
         [TestMethod]
         public void Solve_9_9_Test()
@@ -91,7 +91,7 @@ namespace SudokuSolverTests
             string solvedMatBase = Sudoku_Solver.Solve_Sudoku();
             sw.Stop();
             int[,] solvedMat = Board_Formatter.Format(solvedMatBase);
-            Assert.AreEqual(true, Tester.TestSolvedSudoku(solvedMat));
+            Assert.AreEqual(true, Sudoku_Validator.TestSolvedSudoku(solvedMat));
         }
         [TestMethod]
         public void Solve_16_16_Test()
@@ -104,7 +104,7 @@ namespace SudokuSolverTests
             string solvedMatBase = Sudoku_Solver.Solve_Sudoku();
             sw.Stop();
             int[,] solvedMat = Board_Formatter.Format(solvedMatBase);
-            Assert.AreEqual(true, Tester.TestSolvedSudoku(solvedMat));
+            Assert.AreEqual(true, Sudoku_Validator.TestSolvedSudoku(solvedMat));
         }
         [TestMethod]
         public void Solve_25_25_Test()
@@ -117,7 +117,7 @@ namespace SudokuSolverTests
             string solvedMatBase = Sudoku_Solver.Solve_Sudoku();
             sw.Stop();
             int[,] solvedMat = Board_Formatter.Format(solvedMatBase);
-            Assert.AreEqual(true, Tester.TestSolvedSudoku(solvedMat));
+            Assert.AreEqual(true, Sudoku_Validator.TestSolvedSudoku(solvedMat));
         }
         //Test to check if the solver manages to solve a 9X9 sudoku in under 1 second
         [TestMethod]

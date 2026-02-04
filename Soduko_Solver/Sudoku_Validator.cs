@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Soduko_Solver
 {
-    public class Tester
+    public class Sudoku_Validator
     {
         public static Random rnd = new Random();
         // Randomly remove target amount of cells in a solved mat.

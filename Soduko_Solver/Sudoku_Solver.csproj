@@ -61,15 +61,15 @@
   <ItemGroup>
     <Compile Include="Board_Formatter.cs" />
     <Compile Include="Base_Exceptions.cs" />
-    <Compile Include="LCV_Value.cs" />
+    <Compile Include="Sudoku_Objects\LCV_Value.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SudokuStack.cs" />
-    <Compile Include="SudokuState.cs" />
-    <Compile Include="Sudoku_Runner.cs" />
-    <Compile Include="Sudoku_Solver.cs" />
-    <Compile Include="Sudoku_Solver_Helper.cs" />
-    <Compile Include="Tester.cs" />
+    <Compile Include="Sudoku_Objects\SudokuStack.cs" />
+    <Compile Include="Sudoku_Objects\SudokuState.cs" />
+    <Compile Include="Solver\Sudoku_Runner.cs" />
+    <Compile Include="Solver\Sudoku_Solver.cs" />
+    <Compile Include="Solver\Sudoku_Solver_Helper.cs" />
+    <Compile Include="Sudoku_Validator.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

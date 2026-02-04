@@ -57,9 +57,7 @@ namespace Soduko_Solver
             if (state.Mat[rows, cols] == 0)
                 for (int i = 1; i < state.Mat.GetLength(0) + 1; i++)
                 {
-                    if (!Is_Already_Placed(state.RowsBitMask[rows], i)
-                        && !Is_Already_Placed(state.ColsBitMask[cols], i)
-                        && !Is_Already_Placed(state.BoxesBitMask[b], i))
+                    if (Is_Placeable(rows,cols,i))
                     {
                         AddSeenDigits(i, rows, cols);
                         state.Mat[rows, cols] = i;
