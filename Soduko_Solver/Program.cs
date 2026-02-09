@@ -33,7 +33,7 @@ namespace Soduko_Solver
                         string testMat = "831529674796814253542637189159783426483296715627145938365471892274958361918362547";
                         int[,] testMatFormatted = Board_Formatter.Format(testMat);
                         Sudoku_Solver s2 = new Sudoku_Solver(testMatFormatted);
-                        testMat = Sudoku_Validator.GenerateSudokuBoard(testMatFormatted, (int)(testMatFormatted.GetLength(0) * testMatFormatted.GetLength(0) * 0.97));
+                        testMat = Sudoku_Generator.GenerateSudokuBoard(testMatFormatted, (int)(testMatFormatted.GetLength(0) * testMatFormatted.GetLength(0) * 0.97));
                         Sudoku_Runner.Run(testMat); // Solve the generated hard sudoku
                     }
                     sw.Stop();
