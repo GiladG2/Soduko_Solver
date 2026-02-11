@@ -40,7 +40,9 @@ namespace Soduko_Solver
             ResetEmpties(state.Mat);
             string matString = "";
             //Continue solving after using simpler brute force
-            BackTrack();
+            bool solveable = BackTrack();
+            if (!solveable)
+                throw new Unsolvable_Mat_Exception();
             for (int i = 0; i < state.Mat.GetLength(0); i++)
                 for (int j = 0; j < state.Mat.GetLength(0); j++)
                     matString += (char)('0' + state.Mat[i, j]);
