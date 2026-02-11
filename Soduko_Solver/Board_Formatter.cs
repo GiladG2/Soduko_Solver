@@ -17,7 +17,7 @@ namespace Soduko_Solver
             int n = baseMat.Length;
             if(n == 0)
                 throw new Empty_Board_Exception();
-            if (n != 81) // If the board's size^0.25 is not a whole numer => invalid len
+            if (n != 81) //For release: limited board size to 9 X 9
                 throw new Invalid_Length_Exception();
             n = (int)Math.Sqrt(n);
             int[,] mat = new int[n, n];
