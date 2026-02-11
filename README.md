@@ -4,7 +4,9 @@ Sudoku is a japanese game where given a semi-filled mat, the goal
 is to fill the board while not contradicting with the Sudoku's constraints, which are:
 in any given row, column, or box, every digit in the Sudoku's domain can appear once.
 In the solver, the domain of allowed symbols in the input string (representation of the numer n) is '0' + n where 0 is an empty cell.
+Domain of valid symbols
 ```sh
+'0' => empty cell
 '1-9' => 1-9
 ```
 # The Sudoku solver
@@ -51,20 +53,20 @@ Recorded execution times using various precentages (90% - 100%) in order to cult
 If the solver recognizes a need for a brute-force filling of the board, it calls SimpleBactracking() to fill up to 6% of the board, and then lets the MRV algorithm handles
 solving the remaining 94%. Now, because the MRV has constraints to work with, it is significantly faster.
 ## Naked singles chain (Constraint propagation)
-Naked singles are cells where their domain $d = 1$.
-At the start of each backtracking call, if a board is larger than 9X9, and most of its cells (70%) are filled, 
+Naked singles are cells who have 1 valid option
+At the start of each backtracking call, if most of the board's cells (70%) are filled, 
 a naked singles chain is triggered.
 Naked singles placements can create another naked singles elsewhere on the board.
 Fill a naked single while its filling has created another naked single, chaining multiple forced moves at once (Fill [...] while [...] =>
 implemented as do-while) cutting down a lot of recursion branches.
-If the chaining resulted in a cell whose domain $d=0$ (no valid options), then Rollback the changes made by the naked singles chain.
+If the chaining resulted in a cell who has 0 zero valid, then Rollback the changes made by the naked singles chain.
 ### RollBack and Changes stack
 Implemented a stack that records every single modification that has been made the board. Upon finding a chain that has resulted in a failed sudoku branch 
 (or a guess that has resulted in a failed sudoku branch)
 , check how many mofidications have been made during the naked singles chain, and pop the moves from the stack to revert them.
 
 # Testing
-Used MS's testing and followed testing guidelines (AAA) in order to create 12 test functions for my solver.
+Used MS's testing and followed testing guidelines (AAA) in order to create 16 test functions for my solver.
 Important note: due to the static implementation of the solver, every test has to be checked seperately (if a user
 will try to run all the tests at once, the state of the solver may not match the test case)
 
