@@ -6,8 +6,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Soduko_Solver
-{
+namespace SudokuSolverTests{
     public class Sudoku_Validator
     {        
         //Test a solved mat in order to check if does not condradict the Sudoku's rules

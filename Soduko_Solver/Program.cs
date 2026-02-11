@@ -30,7 +30,7 @@ namespace Soduko_Solver
                     for (int i = 0; i < 500; i++)
                     {
                         Console.WriteLine($"Sudoku num. {i + 1}");
-                        string testMat = "831529674796814253542637189159783426483296715627145938365471892274958361918362547";
+                        string testMat = "8315296747968142535426371891597834264832967156271459383654718922749583651918362547";
                         int[,] testMatFormatted = Board_Formatter.Format(testMat);
                         Sudoku_Solver s2 = new Sudoku_Solver(testMatFormatted);
                         testMat = Sudoku_Generator.GenerateSudokuBoard(testMatFormatted, (int)(testMatFormatted.GetLength(0) * testMatFormatted.GetLength(0) * 0.97));

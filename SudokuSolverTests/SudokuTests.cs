@@ -60,13 +60,14 @@ namespace SudokuSolverTests
             Assert.ThrowsException<Invalid_Character_Exception>(() => Sudoku_Solver.Solve_Sudoku());
         }
         [TestMethod]
-        //Unsolveable board exception is thrown if TestSolvedSudoku returns false
+        //Test to check correct throwing of unsolveable board exception
         public void Unsolveable_Board_Exception_Test()
         {
-            //Assume solved mat is the final board returned by my solver (Backtracking() returned false)
-            string final_string = "800000070006010053040600000000080400003000700020000038000000800004050061900002000";
+            //Unsolveable board => the cell at row 4 column 6 has no valid options.
+            string final_string = "200900000000000060000001000502600407000004100000098023000003080005010000007000000";
             int[,] final_mat = Board_Formatter.Format(final_string);
-            Assert.AreEqual(false,Sudoku_Validator.TestSolvedSudoku(final_mat));
+            Sudoku_Solver s = new Sudoku_Solver(final_mat);
+            Assert.ThrowsException<Unsolvable_Mat_Exception>(() => Sudoku_Solver.Solve_Sudoku());
         }
         //Tests to see the ability of the solver to solve various sizes
         //if the TestSolvedSudoku returned true, than the board has been solved correctly
@@ -78,7 +79,7 @@ namespace SudokuSolverTests
             Sudoku_Solver s = new Sudoku_Solver(mat);
             string solvedMatBase = Sudoku_Solver.Solve_Sudoku();
             int[,] solvedMat = Board_Formatter.Format(solvedMatBase);
-            Assert.AreEqual(true, Sudoku_Validator.TestSolvedSudoku(solvedMat));
+            Assert.AreEqual(true, SudokuSolverTests.Sudoku_Validator.TestSolvedSudoku(solvedMat));
         }
         [TestMethod]
         public void Solve_9_9_Test()
@@ -91,7 +92,7 @@ namespace SudokuSolverTests
             string solvedMatBase = Sudoku_Solver.Solve_Sudoku();
             sw.Stop();
             int[,] solvedMat = Board_Formatter.Format(solvedMatBase);
-            Assert.AreEqual(true, Sudoku_Validator.TestSolvedSudoku(solvedMat));
+            Assert.AreEqual(true, SudokuSolverTests.Sudoku_Validator.TestSolvedSudoku(solvedMat));
         }
         [TestMethod]
         public void Solve_16_16_Test()
@@ -104,7 +105,7 @@ namespace SudokuSolverTests
             string solvedMatBase = Sudoku_Solver.Solve_Sudoku();
             sw.Stop();
             int[,] solvedMat = Board_Formatter.Format(solvedMatBase);
-            Assert.AreEqual(true, Sudoku_Validator.TestSolvedSudoku(solvedMat));
+            Assert.AreEqual(true, SudokuSolverTests.Sudoku_Validator.TestSolvedSudoku(solvedMat));
         }
         [TestMethod]
         public void Solve_25_25_Test()
@@ -117,7 +118,7 @@ namespace SudokuSolverTests
             string solvedMatBase = Sudoku_Solver.Solve_Sudoku();
             sw.Stop();
             int[,] solvedMat = Board_Formatter.Format(solvedMatBase);
-            Assert.AreEqual(true, Sudoku_Validator.TestSolvedSudoku(solvedMat));
+            Assert.AreEqual(true, SudokuSolverTests.Sudoku_Validator.TestSolvedSudoku(solvedMat));
         }
         //Test to check if the solver manages to solve a 9X9 sudoku in under 1 second
         [TestMethod]
@@ -142,5 +143,6 @@ namespace SudokuSolverTests
             Sudoku_Solver s = new Sudoku_Solver(invalid_mat);
             Assert.ThrowsException<Invalid_Space_Exception>(() => Sudoku_Solver.Solve_Sudoku());
         }
+        
     }
 }
