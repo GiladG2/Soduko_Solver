@@ -59,7 +59,7 @@ a naked singles chain is triggered.
 Naked singles placements can create another naked singles elsewhere on the board.
 Fill a naked single while its filling has created another naked single, chaining multiple forced moves at once (Fill [...] while [...] =>
 implemented as do-while) cutting down a lot of recursion branches.
-If the chaining resulted in a cell who has 0 zero valid, then Rollback the changes made by the naked singles chain.
+If the chaining resulted in a cell who has 0 zero valid options, then Rollback the changes made by the naked singles chain.
 ### RollBack and Changes stack
 Implemented a stack that records every single modification that has been made the board. Upon finding a chain that has resulted in a failed sudoku branch 
 (or a guess that has resulted in a failed sudoku branch)
